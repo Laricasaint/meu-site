@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fórmulas - Meus Estudos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})">
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+    header { background-color: #2d6a9f; color: white; padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+    header a { color: white; text-decoration: none; font-size: 1.4rem; }
+    header h1 { margin: 0; font-size: 1.4rem; }
+    main { padding: 30px; max-width: 1000px; margin: 0 auto; }
+    .filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+    .filtro-btn { padding: 8px 18px; border-radius: 20px; border: 2px solid #b0cfe8; background: white; color: #2d6a9f; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; }
+    .filtro-btn:hover, .filtro-btn.ativo { background: #2d6a9f; color: white; border-color: #2d6a9f; }
+    .materia-section { display: none; }
+    .materia-section.visivel { display: block; }
+    .secao { margin-bottom: 36px; }
+    .secao-titulo { font-size: 1rem; font-weight: bold; color: #2d6a9f; margin: 0 0 14px; padding: 10px 16px; background: #e8f2fb; border-radius: 8px; border-left: 4px solid #2d6a9f; }
+    .materia-titulo { font-size: 1.2rem; font-weight: bold; color: #1a4f78; margin: 0 0 20px; padding-bottom: 12px; border-bottom: 3px solid #2d6a9f; }
+    .formulas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 10px; }
+    .fc { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 4px solid #2d6a9f; }
+    .fc.verde   { border-left-color: #2e9e5b; }
+    .fc.laranja { border-left-color: #e07b2a; }
+    .fc.roxo    { border-left-color: #7b4fbf; }
+    .fc.verm    { border-left-color: #d94f4f; }
+    .fc.cinza   { border-left-color: #888; }
+    .fc-nome { font-size: 0.78rem; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .fc-expr { font-size: 1rem; text-align: center; padding: 8px 0; overflow-x: auto; }
+    .fc-desc { font-size: 0.82rem; color: #666; margin-top: 8px; line-height: 1.5; border-top: 1px solid #f0f0f0; padding-top: 8px; }
+    .alerta { background: #fff8e8; border: 1px solid #f5c842; border-radius: 8px; padding: 12px 16px; font-size: 0.85rem; color: #7a5500; margin-bottom: 20px; line-height: 1.6; }
+    .alerta strong { display: block; margin-bottom: 4px; }
+    .derivacoes { background: #f0f6fc; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; font-size: 0.88rem; color: #1a4f78; line-height: 2.2; }
+    .derivacoes strong { display: block; margin-bottom: 4px; color: #2d6a9f; }
+  </style>
+</head>
+<body>
+<header>
+  <a href="index.html">← Voltar</a>
+  <h1>🔢 Fórmulas</h1>
+</header>
+<main>
+  <div class="filtros">
+    <button class="filtro-btn ativo" onclick="filtrar('todas', this)">Todas</button>
+    <button class="filtro-btn" onclick="filtrar('atuarial', this)">📐 Mat. Atuarial</button>
+    <button class="filtro-btn" onclick="filtrar('financeira', this)">💰 Mat. Financeira</button>
+    <button class="filtro-btn" onclick="filtrar('probabilidade', this)">🎲 Prob. e Estatística</button>
+    <button class="filtro-btn" onclick="filtrar('risco', this)">⚠️ Teoria do Risco</button>
+    <button class="filtro-btn" onclick="filtrar('gestao', this)">📋 Gestão Atuarial</button>
+  </div>
+
+  <!-- MATEMÁTICA ATUARIAL -->
+  <div class="materia-section visivel" data-materia="atuarial">
+    <div class="materia-titulo">📐 Matemática Atuarial</div>
+
+    <div class="secao">
+      <div class="secao-titulo">2.1 Tábua de Mortalidade — Funções Básicas</div>
+      <div class="derivacoes">
+        <strong>Derivações — construa uma fórmula a partir da outra:</strong>
+        $d_x = l_x - l_{x+1}$ &nbsp;→&nbsp; $l_{x+1} = l_x - d_x$ &nbsp;→&nbsp; $l_x = l_{x+1} + d_x$<br>
+        $q_x = d_x / l_x$ &nbsp;→&nbsp; $d_x = q_x \cdot l_x$ &nbsp;→&nbsp; $l_x = d_x / q_x$<br>
+        $p_x = 1 - q_x = l_{x+1}/l_x$ &nbsp;→&nbsp; $l_{x+1} = p_x \cdot l_x$<br>
+        ${}_np_x = l_{x+n}/l_x$ &nbsp;→&nbsp; $l_{x+n} = {}_np_x \cdot l_x$<br>
+        ${}_nq_x = 1 - {}_np_x = (l_x - l_{x+n})/l_x$<br>
+        ${}_{m|n}q_x = {}_mp_x \cdot {}_nq_{x+m} = (l_{x+m} - l_{x+m+n})/l_x$
+      </div>
+      <div class="formulas-grid">
+        <div class="fc">
+          <div class="fc-nome">$l_x$ — sobreviventes à idade $x$</div>
+          <div class="fc-expr">$$l_{x+1} = l_x - d_x$$</div>
+          <div class="fc-desc">Número de vivos exatos na idade $x$ numa coorte inicial $l_0$.</div>
+        </div>
+        <div class="fc verde">
+          <div class="fc-nome">$d_x$ — óbitos entre $x$ e $x+1$</div>
+          <div class="fc-expr">$$d_x = l_x - l_{x+1} = q_x \cdot l_x$$</div>
+          <div class="fc-desc">Número de mortes no intervalo de idade $(x, x+1)$.</div>
+        </div>
+        <div class="fc laranja">
+          <div class="fc-nome">$q_x$ — probabilidade de morte</div>
+          <div class="fc-expr">$$q_x = \frac{d_x}{l_x} = 1 - \frac{l_{x+1}}{l_x}$$</div>
+          <div class="fc-desc">Prob. de morrer antes de $x+1$ dado que está vivo em $x$.</div>
+        </div>
+        <div class="fc roxo">
+          <div class="fc-nome">$p_x$ — probabilidade de sobrevivência</div>
+          <div class="fc-expr">$$p_x = 1 - q_x = \frac{l_{x+1}}{l_x}$$</div>
+          <div class="fc-desc">Prob. de sobreviver de $x$ a $x+1$. Complementar de $q_x$.</div>
+        </div>
+        <div class="fc verm">
+          <div class="fc-nome">${}_np_x$ — sobreviver $n$ anos</div>
+          <div class="fc-expr">$${}_np_x = \frac{l_{x+n}}{l_x} = p_x \cdot p_{x+1} \cdots p_{x+n-1}$$</div>
+          <div class="fc-desc">Prob. de sobreviver $n$ anos a partir de $x$.</div>
+        </div>
+        <div class="fc cinza">
+          <div class="fc-nome">${}_nq_x$ — morrer em $n$ anos</div>
+          <div class="fc-expr">$${}_nq_x = 1 - {}_np_x = \frac{l_x - l_{x+n}}{l_x}$$</div>
+          <div class="fc-desc">Prob. de morrer dentro de $n$ anos a partir de $x$.</div>
+        </div>
+        <div class="fc">
+          <div class="fc-nome">${}_{m|n}q_x$ — diferida $m$, duração $n$</div>
+          <div class="fc-expr">$${}_{m|n}q_x = \frac{l_{x+m} - l_{x+m+n}}{l_x}$$</div>
+          <div class="fc-desc">Sobrevive $m$ anos e morre nos $n$ anos seguintes.</div>
+        </div>
+        <div class="fc verde">
+          <div class="fc-nome">$L_x$ — anos vividos no intervalo</div>
+          <div class="fc-expr">$$L_x \approx \frac{l_x + l_{x+1}}{2}$$</div>
+          <div class="fc-desc">Exposição ao risco entre as idades $x$ e $x+1$.</div>
+        </div>
+        <div class="fc laranja">
+          <div class="fc-nome">$m_x$ — taxa central de mortalidade</div>
+          <div class="fc-expr">$$m_x = \frac{d_x}{L_x}$$</div>
+          <div class="fc-desc">Óbitos por unidade de exposição. Diferente de $q_x$.</div>
+        </div>
+        <div class="fc roxo">
+          <div class="fc-nome">$\mu_x$ — força de mortalidade</div>
+          <div class="fc-expr">$$\mu_x = -\frac{d[\ln l_x]}{dx} = \frac{f_T(x)}{S(x)}$$</div>
+          <div class="fc-desc">Taxa instantânea de mortalidade. Análoga à taxa de falha.</div>
+        </div>
+        <div class="fc verm">
+          <div class="fc-nome">Hipótese: força constante ($T \sim$ Exp)</div>
+          <div class="fc-expr">$$T \sim \text{Exp}(\mu) \Rightarrow {}_np_x = e^{-\mu n}$$</div>
+          <div class="fc-desc">Falta de memória. $q_x = 1 - e^{-\mu}$ constante em todas as idades.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-titulo">2.2 Comutadores (Tábua Comutada)</div>
+      <div class="formulas-grid">
+        <div class="fc">
+          <div class="fc-nome">$D_x$</div>
+          <div class="fc-expr">$$D_x = l_x \cdot v^x, \quad v = \frac{1}{1+i}$$</div>
+          <div class="fc-desc">Base dos comutadores. $v$ é o fator de desconto unitário.</div>
+        </div>
+        <div class="fc verde">
+          <div class="fc-nome">$N_x$</div>
+          <div class="fc-expr">$$N_x = D_x + D_{x+1} + \cdots + D_\omega$$</div>
+          <div class="fc-desc">Soma acumulada dos $D_x$. Usada em rendas vitalícias.</div>
+        </div>
+        <div class="fc laranja">
+          <div class="fc-nome">$C_x$</div>
+          <div class="fc-expr">$$C_x = d_x \cdot v^{x+1}$$</div>
+          <div class="fc-desc">VP do pagamento no ano de morte. Base dos seguros.</div>
+        </div>
+        <div class="fc roxo">
+          <div class="fc-nome">$M_x$</div>
+          <div class="fc-expr">$$M_x = C_x + C_{x+1} + \cdots + C_\omega$$</div>
+          <div class="fc-desc">Soma acumulada dos $C_x$. Usada em seguros de vida.</div>
+        </div>
+        <div class="fc verm">
+          <div class="fc-nome">$S_x$ (rendas crescentes)</div>
+          <div class="fc-expr">$$S_x = N_x + N_{x+1} + N_{x+2} + \cdots$$</div>
+          <div class="fc-desc">Usada para rendas que crescem 1 por ano.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-titulo">2.3 Rendas Vitalícias com Comutadores</div>
+      <div class="alerta">
+        <strong>⚠️ Identidade fundamental:</strong>
+        $\ddot{a}_{x:\overline{n}|} + {}_nE_x \cdot \ddot{a}_{x+n} = \ddot{a}_x$ — temporária + diferida = vitalícia
+      </div>
+      <div class="formulas-grid">
+        <div class="fc">
+          <div class="fc-nome">Vitalícia antecipada</div>
+          <div class="fc-expr">$$\ddot{a}_x = \frac{N_x}{D_x}$$</div>
+          <div class="fc-desc">Pagamentos no início de cada período, por toda a vida.</div>
+        </div>
+        <div class="fc verde">
+          <div class="fc-nome">Vitalícia postecipada</div>
+          <div class="fc-expr">$$a_x = \frac{N_{x+1}}{D_x}$$</div>
+          <div class="fc-desc">Pagamentos no final de cada período, por toda a vida.</div>
+        </div>
+        <div class="fc laranja">
+          <div class="fc-nome">Temporária antecipada ($n$ anos)</div>
+          <div class="fc-expr">$$\ddot{a}_{x:\overline{n}|} = \frac{N_x - N_{x+n}}{D_x}$$</div>
+          <div class="fc-desc">Pagamentos no início, limitados a $n$ anos.</div>
+        </div>
+        <div class="fc roxo">
+          <div class="fc-nome">Temporária postecipada ($n$ anos)</div>
+          <div class="fc-expr">$$a_{x:\overline{n}|} = \frac{N_{x+1} - N_{x+n+1}}{D_x}$$</div>
+          <div class="fc-desc">Pagamentos no final, limitados a $n$ anos.</div>
+        </div>
+        <div class="fc verm">
+          <div class="fc-nome">Diferida $k$ anos — antecipada</div>
+          <div class="fc-expr">$${}_{k|}\ddot{a}_x = \frac{N_{x+k}}{D_x}$$</div>
+          <div class="fc-desc">Primeiro pagamento após $k$ anos, no início do período.</div>
+        </div>
+        <div class="fc cinza">
+          <div class="fc-nome">Diferida $k$ anos — postecipada</div>
+          <div class="fc-expr">$${}_{k|}a_x = \frac{N_{x+k+1}}{D_x}$$</div>
+          <div class="fc-desc">Primeiro pagamento após $k+1$ anos.</div>
+        </div>
+        <div class="fc">
+          <div class="fc-nome">Temporária + diferida antecipada</div>
+          <div class="fc-expr">$${}_{k|}\ddot{a}_{x:\overline{n}|} = \frac{N_{x+k} - N_{x+k+n}}{D_x}$$</div>
+          <div class="fc-desc">Diferida $k$ anos, pagamentos por $n$ anos.</div>
+        </div>
+        <div class="fc verde">
+          <div class="fc-nome">Renda crescente</div>
+          <div class="fc-expr">$$(I\ddot{a})_x = \frac{S_{x+1}}{D_x}$$</div>
+          <div class="fc-desc">Renda que aumenta 1 por ano ao longo da vida.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-titulo">2.4 Seguros de Vida com Comutadores</div>
+      <div class="formulas-grid">
+        <div class="fc">
+          <div class="fc-nome">Vida inteira (postecipado)</div>
+          <div class="fc-expr">$$A_x = \frac{M_x}{D_x}$$</div>
+          <div class="fc-desc">Paga 1 no final do ano de morte, qualquer que seja.</div>
+        </div>
+        <div class="fc verde">
+          <div class="fc-nome">Temporário $n$ anos</div>
+          <div class="fc-expr">$$A^1_{x:\overline{n}|} = \frac{M_x - M_{x+n}}{D_x}$$</div>
+          <div class="fc-desc">Paga 1 somente se a morte ocorre nos primeiros $n$ anos.</div>
+        </div>
+        <div class="fc laranja">
+          <div class="fc-nome">Dote puro ($n$ anos)</div>
+          <div class="fc-expr">$${}_nE_x = \frac{D_{x+n}}{D_x} = \frac{l_{x+n}}{l_x} \cdot v^n$$</div>
+          <div class="fc-desc">Paga 1 se o segurado sobrevive exatamente $n$ anos.</div>
+        </div>
+        <div class="fc roxo">
+          <div class="fc-nome">Dote misto</div>
+          <div class="fc-expr">$$A_{x:\overline{n}|} = A^1_{x:\overline{n}|} + {}_nE_x$$</div>
+          <div class="fc-desc">Paga na morte (se antes de $n$) OU na sobrevivência aos $n$ anos.</div>
+        </div>
+        <div class="fc verm">
+          <div class="fc-nome">Relação $A_x$ e $\ddot{a}_x$</div>
+          <div class="fc-expr">$$A_x = 1 - d \cdot \ddot{a}_x, \quad d = \frac{i}{1+i}$$</div>
+          <div class="fc-desc">Converte seguro em renda vitalícia antecipada.</div>
+        </div>
+        <div class="fc cinza">
+          <div class="fc-nome">Relação inversa</div>
+          <div class="fc-expr">$$\ddot{a}_x = \frac{1 - A_x}{d}$$</div>
+          <div class="fc-desc">Obtém a renda a partir do seguro vitalício.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-titulo">2.5 Prêmio Puro e Reserva</div>
+      <div class="alerta">
+        <strong>⚠️ Princípio da Equivalência Atuarial:</strong>
+        $VP(\text{prêmios}) = VP(\text{benefícios})$ — base de todo cálculo atuarial.
+        Prospectivo (futuro) = Retrospectivo (passado) com premissas consistentes.
+      </div>
+      <div class="formulas-grid">
+        <div class="fc">
+          <div class="fc-nome">Prêmio único</div>
+          <div class="fc-expr">$$P^1 = \text{Capital} \times A_x$$</div>
+          <div class="fc-desc">Prêmio pago de uma vez para seguro de vida inteira.</div>
+        </div>
+        <div class="fc verde">
+          <div class="fc-nome">Prêmio anual nivelado</div>
+          <div class="fc-expr">$$P = \frac{\text{Capital} \times A_x}{\ddot{a}_{x:\overline{n}|}}$$</div>
+          <div class="fc-desc">Prêmio pago anualmente por $n$ anos para financiar o benefício.</div>
+        </div>
+        <div class="fc laranja">
+          <div class="fc-nome">Reserva prospectiva</div>
+          <div class="fc-expr">$${}_tV = VP(\text{benef. futuros}) - VP(\text{prêm. futuros})$$</div>
+          <div class="fc-desc">Olha para FRENTE. Valor necessário no tempo $t$.</div>
+        </div>
+        <div class="fc roxo">
+          <div class="fc-nome">Reserva retrospectiva</div>
+          <div class="fc-expr">$${}_tV = VA(\text{prêm. passados}) - VA(\text{benef. passados})$$</div>
+          <div class="fc-desc">Olha para o PASSADO. Mesmo resultado da prospectiva.</div>
+        </div>
+        <div class="fc verm">
+          <div class="fc-nome">Reserva por recursão</div>
+          <div class="fc-expr">$$({}_tV + P)(1+i) = q_{x+t} \cdot C + p_{x+t} \cdot {}_{t+1}V$$</div>
+          <div class="fc-desc">Avança a reserva um período. Equilíbrio entrada/saída esperada.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="secao-titulo">2.6 Rendas com Múltiplas Vidas</div>
+      <div class="formulas-grid">
+        <div class="fc">
+          <div class="fc-nome">Status conjunto (joint-life)</div>
+          <div class="fc-expr">$$\ddot{a}_{xy} \text{ — paga enquanto } x \textbf{ E } y \text{ vivem}$$</div>
+          <div class="fc-desc">Cessa na primeira morte.</div>
+        </div>
+        <div class="fc verde">
+          <div class="fc-nome">Status último sobrevivente</div>
+          <div class="fc-expr">$$\ddot{a}_{\overline{xy}} \text{ — paga enquanto } x \textbf{ OU } y \text{ vive}$$</div>
+          <div class="fc-desc">Cessa somente quando ambos morrem.</div>
+        </div>
+        <div class="fc laranja">
+          <div class="fc-nome">Identidade último / joint</div>
+          <div class="fc-expr">$$\ddot{a}_{xy} + \ddot{a}_{\overline{xy}} = \ddot{a}_x + \ddot{a}_y$$</div>
+          <div class="fc-desc">Identidade fundamental das rendas com múltiplas vidas.</div>
+        </div>
+        <div class="fc roxo">
+          <div class="fc-nome">Pensão reversível de $x$ para $y$</div>
+          <div class="fc-expr">$$VP = \ddot{a}_y - \ddot{a}_{xy}$$</div>
+          <div class="fc-desc">Paga para $y$ somente após a morte de $x$.</div>
+        </div>
+        <div class="fc verm">
+          <div class="fc-nome">Pensão reversível de $y$ para $x$</div>
+          <div class="fc-expr">$$VP = \ddot{a}_x - \ddot{a}_{xy}$$</div>
+          <div class="fc-desc">Paga para $x$ somente após a morte de $y$.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATEMÁTICA FINANCEIRA -->
+  <div class="materia-section visivel" data-materia="financeira">
+    <div class="materia-titulo">💰 Matemática Financeira</div>
+    <div class="secao">
+      <div class="secao-titulo">3.1 Juros Compostos — Conversões</div>
+      <div class="alerta">
+        <strong>⚠️ Pegadinha clássica:</strong>
+        $12 \times 0{,}5\% = 6\%$ é a taxa NOMINAL. A efetiva é $(1{,}005)^{12} - 1 = 6{,}17\%$. NUNCA some taxas mensais!
+      </div>
+      <div class="formulas-grid">
+        <div class="fc"><div class="fc-nome">Valor futuro</div><div class="fc-expr">$$VF = VP \cdot (1+i)^n$$</div><div class="fc-desc">Montante após $n$ períodos à taxa $i$.</div></div>
+        <div class="fc verde"><div class="fc-nome">Valor presente</div><div class="fc-expr">$$VP = \frac{VF}{(1+i)^n} = VF \cdot v^n$$</div><div class="fc-desc">$v = 1/(1+i)$ é o fator de desconto.</div></div>
+        <div class="fc laranja"><div class="fc-nome">Taxa efetiva anual (de mensal)</div><div class="fc-expr">$$i_a = (1 + i_m)^{12} - 1$$</div><div class="fc-desc">$(1{,}005)^{12} \approx 1{,}0617$. $(1{,}01)^{12} \approx 1{,}1268$.</div></div>
+        <div class="fc roxo"><div class="fc-nome">Taxa mensal equivalente (de anual)</div><div class="fc-expr">$$i_m = (1 + i_a)^{1/12} - 1$$</div><div class="fc-desc">Converte taxa anual para mensal equivalente.</div></div>
+        <div class="fc verm"><div class="fc-nome">Equação de Fisher</div><div class="fc-expr">$$(1 + i_{nom}) = (1 + i_{real})(1 + \pi)$$</div><div class="fc-desc">$\pi$ = inflação. Taxa nominal, real e inflação.</div></div>
+        <div class="fc cinza"><div class="fc-nome">Força de juros ($\delta$)</div><div class="fc-expr">$$\delta = \ln(1+i) \Rightarrow FV = PV \cdot e^{\delta n}$$</div><div class="fc-desc">Taxa instantânea contínua equivalente à taxa $i$.</div></div>
+      </div>
+    </div>
+    <div class="secao">
+      <div class="secao-titulo">3.2 Anuidades (Rendas Certas)</div>
+      <div class="alerta"><strong>⚠️ "No ato" = antecipada (due) = fator postecipado × $(1+i)$. "1 mês após" = postecipada.</strong></div>
+      <div class="formulas-grid">
+        <div class="fc"><div class="fc-nome">Anuidade postecipada — VP</div><div class="fc-expr">$$VP = PMT \cdot \frac{1-(1+i)^{-n}}{i}$$</div><div class="fc-desc">Valor presente de $n$ pagamentos ao final de cada período.</div></div>
+        <div class="fc verde"><div class="fc-nome">Anuidade postecipada — VF</div><div class="fc-expr">$$VF = PMT \cdot \frac{(1+i)^n - 1}{i}$$</div><div class="fc-desc">Valor futuro de $n$ pagamentos ao final de cada período.</div></div>
+        <div class="fc laranja"><div class="fc-nome">Anuidade antecipada (due)</div><div class="fc-expr">$$VP_{due} = VP_{post} \cdot (1+i)$$</div><div class="fc-desc">Multiplica o fator postecipado por $(1+i)$.</div></div>
+        <div class="fc roxo"><div class="fc-nome">Perpetuidade postecipada</div><div class="fc-expr">$$VP = \frac{PMT}{i}$$</div><div class="fc-desc">Renda infinita com pagamentos ao final do período.</div></div>
+        <div class="fc verm"><div class="fc-nome">Perpetuidade antecipada</div><div class="fc-expr">$$VP = \frac{PMT}{d}, \quad d = \frac{i}{1+i}$$</div><div class="fc-desc">Renda infinita com pagamentos no início do período.</div></div>
+        <div class="fc cinza"><div class="fc-nome">Anuidade diferida $k$ períodos</div><div class="fc-expr">$$VP = PMT \cdot \frac{1-(1+i)^{-n}}{i} \cdot v^k$$</div><div class="fc-desc">Primeiro pagamento no período $k+1$.</div></div>
+      </div>
+    </div>
+    <div class="secao">
+      <div class="secao-titulo">3.3 Amortização — Price e SAC</div>
+      <div class="formulas-grid">
+        <div class="fc"><div class="fc-nome">Price — parcela constante</div><div class="fc-expr">$$PMT = VP \cdot \frac{i}{1-(1+i)^{-n}}$$</div><div class="fc-desc">Parcela CONSTANTE. Amortização crescente, juros decrescentes.</div></div>
+        <div class="fc verde"><div class="fc-nome">Price — saldo devedor no tempo $t$</div><div class="fc-expr">$$SD_t = PMT \cdot \frac{1-(1+i)^{-(n-t)}}{i}$$</div><div class="fc-desc">Decai de forma não linear.</div></div>
+        <div class="fc laranja"><div class="fc-nome">SAC — amortização constante</div><div class="fc-expr">$$A = \frac{VP}{n} \quad \text{(fixa em todo período)}$$</div><div class="fc-desc">Parcela DECRESCENTE. Saldo decai linearmente.</div></div>
+        <div class="fc roxo"><div class="fc-nome">SAC — parcela no período $t$</div><div class="fc-expr">$$\text{Parcela}_t = \frac{VP}{n} + SD_{t-1} \cdot i$$</div><div class="fc-desc">$J_t = SD_{t-1} \cdot i$. Juros sobre saldo anterior.</div></div>
+        <div class="fc verm"><div class="fc-nome">SAC — saldo devedor</div><div class="fc-expr">$$SD_t = VP - \frac{VP}{n} \cdot t$$</div><div class="fc-desc">Decai LINEARMENTE. $SD_0 = VP$, $SD_n = 0$.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBABILIDADE E ESTATÍSTICA -->
+  <div class="materia-section visivel" data-materia="probabilidade">
+    <div class="materia-titulo">🎲 Probabilidade e Estatística</div>
+    <div class="secao">
+      <div class="secao-titulo">4.1 Probabilidade — Fundamentos</div>
+      <div class="formulas-grid">
+        <div class="fc"><div class="fc-nome">Adição geral</div><div class="fc-expr">$$P(A \cup B) = P(A) + P(B) - P(A \cap B)$$</div><div class="fc-desc">Se mutuamente exclusivos: $P(A \cap B) = 0$.</div></div>
+        <div class="fc verde"><div class="fc-nome">Probabilidade condicional</div><div class="fc-expr">$$P(A|B) = \frac{P(A \cap B)}{P(B)}$$</div><div class="fc-desc">Probabilidade de $A$ dado que $B$ ocorreu.</div></div>
+        <div class="fc laranja"><div class="fc-nome">Independência</div><div class="fc-expr">$$P(A \cap B) = P(A) \cdot P(B)$$</div><div class="fc-desc">Válido somente se $A$ e $B$ são independentes.</div></div>
+        <div class="fc roxo"><div class="fc-nome">Probabilidade total</div><div class="fc-expr">$$P(B) = \sum_i P(B|A_i) \cdot P(A_i)$$</div><div class="fc-desc">$A_i$ formam uma partição do espaço amostral.</div></div>
+        <div class="fc verm"><div class="fc-nome">Teorema de Bayes</div><div class="fc-expr">$$P(A_i|B) = \frac{P(B|A_i) \cdot P(A_i)}{\sum_j P(B|A_j) \cdot P(A_j)}$$</div><div class="fc-desc">Atualiza probabilidades à luz de nova evidência.</div></div>
+      </div>
+    </div>
+    <div class="secao">
+      <div class="secao-titulo">4.2 Distribuições Discretas</div>
+      <div class="alerta"><strong>⚠️ Poisson: média = variância. Bin. Negativa: média &lt; variância. Binomial: média &gt; variância.</strong></div>
+      <div class="formulas-grid">
+        <div class="fc"><div class="fc-nome">Poisson($\lambda$)</div><div class="fc-expr">$$P(X=k) = \frac{e^{-\lambda}\lambda^k}{k!}; \quad E = Var = \lambda$$</div><div class="fc-desc">Frequência de sinistros. Valores: $e^{-1}\approx0{,}368$; $e^{-2}\approx0{,}135$.</div></div>
+        <div class="fc verde"><div class="fc-nome">Binomial($n$, $p$)</div><div class="fc-expr">$$P(X=k)=\binom{n}{k}p^k(1-p)^{n-k};\; E=np;\; Var=np(1-p)$$</div><div class="fc-desc">Número de sucessos em $n$ tentativas independentes.</div></div>
+        <div class="fc laranja"><div class="fc-nome">Binomial Negativa($r$, $p$)</div><div class="fc-expr">$$E = \frac{r(1-p)}{p}; \quad Var = \frac{r(1-p)}{p^2} > E$$</div><div class="fc-desc">Frequência com heterogeneidade. Mistura Poisson-Gama.</div></div>
+        <div class="fc roxo"><div class="fc-nome">Geométrica($p$)</div><div class="fc-expr">$$P(X=k)=(1-p)^{k-1}p;\; E=\frac{1}{p};\; Var=\frac{1-p}{p^2}$$</div><div class="fc-desc">Tentativas até o 1º sucesso.</div></div>
+      </div>
+    </div>
+    <div class="secao">
+      <div class="secao-titulo">4.3 Distribuições Contínuas</div>
+      <div class="formulas-grid">
+        <div class="fc"><div class="fc-nome">Normal($\mu$, $\sigma^2$)</div><div class="fc-expr">$$f(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$</div><div class="fc-desc">Simétrica. $E=\mu$, $Var=\sigma^2$. $P(X>\mu)=0{,}5$.</div></div>
+        <div class="fc verde"><div class="fc-nome">Exponencial($\lambda$)</div><div class="fc-expr">$$E=\frac{1}{\lambda};\; Var=\frac{1}{\lambda^2};\; P(X>t)=e^{-\lambda t}$$</div><div class="fc-desc">Falta de memória: $P(X>s+t|X>s)=P(X>t)$.</div></div>
+        <div class="fc laranja"><div class="fc-nome">Gama($\alpha$, $\beta$)</div><div class="fc-expr">$$E = \frac{\alpha}{\beta}; \quad Var = \frac{\alpha}{\beta^2}$$</div><div class="fc-desc">Generaliza a Exponencial. Severidade de sinistros.</div></div>
+        <div class="fc roxo"><div class="fc-nome">Pareto($\alpha$, $x_0$)</div><div class="fc-expr">$$E = \frac{\alpha x_0}{\alpha - 1}; \quad \text{cauda pesada}$$</div><div class="fc-desc">Sinistros catastróficos. Alta variabilidade.</div></div>
+        <div class="fc verm"><div class="fc-nome">Lognormal($\mu$, $\sigma^2$)</div><div class="fc-expr">$$\ln X \sim N(\mu,\sigma^2);\quad E = e^{\mu + \sigma^2/2}$$</div><div class="fc-desc">Severidade assimétrica. Sempre positiva.</div></div>
+      </div>
+    </div>
+    <div class="secao">
+      <div class="secao-titulo">4.4 Estimação e Intervalos de Confiança</div>
+      <div class="formulas-grid">
+        <div class="fc"><div class="fc-nome">IC para $\mu$ (variância conhecida)</div><div class="fc-expr">$$\bar{x} \pm z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}$$</div><div class="fc-desc">$z_{0{,}025}=1{,}96$ (95%). $z_{0{,}005}=2{,}576$ (99%). $z_{0{,}05}=1{,}645$ (90%).</div></div>
+        <div class="fc verde"><div class="fc-nome">IC para $\mu$ (variância desconhecida)</div><div class="fc-expr">$$\bar{x} \pm t_{\alpha/2,\, n-1} \cdot \frac{s}{\sqrt{n}}$$</div><div class="fc-desc">Usa distribuição $t$ com $n-1$ graus de liberdade.</div></div>
+        <div class="fc laranja"><div class="fc-nome">Identidade fundamental</div><div class="fc-expr">$$E[X^2] = Var(X) + [E(X)]^2$$</div><div class="fc-desc">Calcula variância e momentos de segunda ordem.</div></div>
+        <div class="fc roxo"><div class="fc-nome">Variância da soma independente</div><div class="fc-expr">$$Var(X+Y) = Var(X) + Var(Y)$$</div><div class="fc-desc">Válido somente se $X$ e $Y$ são independentes.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEORIA DO RISCO -->
+  <div class="materia-section visivel" data-materia="risco">
+    <div class="materia-titulo">⚠️ Teoria do Risco</div>
+    <div class="secao">
+      <div class="secao-titulo">Modelo Coletivo de Risco</div>
+      <div class="formulas-grid">
+        <div class="fc"><div class="fc-nome">Sinistro total — modelo coletivo</div><div class="fc-expr">$$S = Y_1 + Y_2 + \cdots + Y_N$$</div><div class="fc-desc">$N$ = frequência (aleatória); $Y_i$ = severidade (iid).</div></div>
+        <div class="fc verde"><div class="fc-nome">Esperança de $S$</div><div class="fc-expr">$$E[S] = E[N] \cdot E[Y]$$</div><div class="fc-desc">Lei da esperança total. Base do prêmio puro.</div></div>
+        <div class="fc laranja"><div class="fc-nome">Variância de $S$</div><div class="fc-expr">$$Var[S] = E[N] \cdot Var[Y] + Var[N] \cdot (E[Y])^2$$</div><div class="fc-desc">Fórmula de variância total para modelos compostos.</div></div>
+        <div class="fc roxo"><div class="fc-nome">FGM de $S$ (Compound)</div><div class="fc-expr">$$M_S(t) = M_N(\ln M_Y(t))$$</div><div class="fc-desc">Função geradora de momentos do modelo coletivo.</div></div>
+        <div class="fc verm"><div class="fc-nome">Mínimo de exponenciais independentes</div><div class="fc-expr">$$\min\!\left(\text{Exp}(\lambda_1),\ldots,\text{Exp}(\lambda_k)\right) \sim \text{Exp}\!\left(\textstyle\sum \lambda_i\right)$$</div><div class="fc-desc">Tempo até o primeiro sinistro com $k$ riscos independentes.</div></div>
+        <div class="fc cinza"><div class="fc-nome">Processo de Poisson condicional</div><div class="fc-expr">$$N(t)=n \Rightarrow \text{os } n \text{ instantes} \sim \text{iid } U[0,t]$$</div><div class="fc-desc">Dado o número de eventos, os instantes são uniformes.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GESTÃO ATUARIAL -->
+  <div class="materia-section visivel" data-materia="gestao">
+    <div class="materia-titulo">📋 Gestão Atuarial</div>
+    <div class="secao">
+      <div class="secao-titulo">1.1 Estrutura do Prêmio</div>
+      <div class="alerta"><strong>⚠️ PPNG = sinistros FUTUROS. IBNR = já ocorreram, não avisados. PSL = ocorreram e avisados.</strong></div>
+      <div class="formulas-grid">
+        <div class="fc"><div class="fc-nome">Prêmio puro</div><div class="fc-expr">$$P_p = E[S]$$</div><div class="fc-desc">Valor esperado dos sinistros. Base antes de carregamentos.</div></div>
+        <div class="fc verde"><div class="fc-nome">Prêmio comercial ($C_d$ sobre $P_c$)</div><div class="fc-expr">$$P_c = \frac{P_p \cdot (1 + C_s)}{1 - C_d}$$</div><div class="fc-desc">$C_s$ = segurança; $C_d$ = despesas (% sobre $P_c$).</div></div>
+        <div class="fc laranja"><div class="fc-nome">Sinistralidade</div><div class="fc-expr">$$Sin = \frac{E[S]}{P_c} = \frac{1-C_d}{1+C_s}$$</div><div class="fc-desc">Fração do prêmio destinada ao pagamento de sinistros.</div></div>
+        <div class="fc roxo"><div class="fc-nome">Índice Combinado</div><div class="fc-expr">$$IC = \frac{\text{Sinistros} + \text{Despesas}}{\text{Prêmio Ganho}}$$</div><div class="fc-desc">$IC < 1$: resultado positivo. $IC > 1$: resultado negativo.</div></div>
+        <div class="fc verm"><div class="fc-nome">PPNG</div><div class="fc-expr">$$PPNG = \text{Prêmio} \times \frac{\text{dias restantes}}{\text{dias vigência}}$$</div><div class="fc-desc">Prêmio Não Ganho — para sinistros FUTUROS de apólices vigentes.</div></div>
+        <div class="fc cinza"><div class="fc-nome">Credibilidade Bühlmann</div><div class="fc-expr">$$Z = \frac{n}{n+k},\quad P_{cred} = Z\bar{X} + (1-Z)\mu$$</div><div class="fc-desc">$k = Var_{entre}/Var_{dentro}$. Combina experiência própria e geral.</div></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<script>
+  function filtrar(materia, btn) {
+    document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    document.querySelectorAll('.materia-section').forEach(sec => {
+      if (materia === 'todas' || sec.dataset.materia === materia) {
+        sec.classList.add('visivel');
+      } else {
+        sec.classList.remove('visivel');
+      }
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

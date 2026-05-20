@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Estudos</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+    header { background-color: #2d6a9f; color: white; padding: 30px; text-align: center; }
+    header h1 { margin: 0; font-size: 2rem; }
+    header p { margin: 8px 0 0; opacity: 0.85; }
+    .cards { display: flex; flex-wrap: wrap; gap: 20px; padding: 40px; justify-content: center; }
+    .card { background: white; border-radius: 12px; padding: 30px; width: 200px; text-align: center; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .card:hover { transform: translateY(-4px); }
+    .card span { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+    .card h2 { margin: 0; font-size: 1rem; }
+    .card small { font-size: 0.75rem; color: #888; display: block; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📚 Meus Estudos</h1>
+    <p>Faculdade • Vestibular • Revisão</p>
+  </header>
+  <div class="cards">
+    <a class="card" href="pdfs.html"><span>📄</span><h2>PDFs</h2><small>Material por matéria</small></a>
+    <a class="card" href="simulados.html"><span>✏️</span><h2>Simulados</h2><small>Questões com IA</small></a>
+    <a class="card" href="flashcards.html"><span>🃏</span><h2>Flashcards</h2><small>Revisão rápida</small></a>
+    <a class="card" href="mapas.html"><span>🗺️</span><h2>Mapas Mentais</h2><small>Visão geral</small></a>
+    <a class="card" href="formulas.html"><span>🔢</span><h2>Fórmulas</h2><small>Todas as matérias</small></a>
+  </div>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcards - Meus Estudos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="iniciar()">
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f0f4f8; margin: 0; padding: 0; }
+    header { background: #2d6a9f; color: white; padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+    header a { color: white; text-decoration: none; font-size: 1.4rem; }
+    header h1 { margin: 0; font-size: 1.4rem; }
+    main { padding: 30px; max-width: 800px; margin: 0 auto; }
+
+    /* TELA DE CONFIGURAÇÃO */
+    #tela-config { }
+    .config-card { background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    .config-card h2 { margin: 0 0 18px; color: #2d6a9f; font-size: 1.05rem; }
+    .materias-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .mat-btn { padding: 12px 16px; border-radius: 10px; border: 2px solid #b0cfe8; background: white; color: #2d6a9f; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .mat-btn:hover { background: #e8f2fb; }
+    .mat-btn.ativo { background: #2d6a9f; color: white; border-color: #2d6a9f; }
+    .qtd-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .qtd-btn { width: 44px; height: 44px; border-radius: 10px; border: 2px solid #b0cfe8; background: white; color: #2d6a9f; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+    .qtd-btn:hover, .qtd-btn.ativo { background: #2d6a9f; color: white; border-color: #2d6a9f; }
+    .btn-iniciar { width: 100%; padding: 14px; background: #2d6a9f; color: white; border: none; border-radius: 10px; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+    .btn-iniciar:hover { background: #1f5080; }
+    .btn-iniciar:disabled { background: #90b4d0; cursor: not-allowed; }
+
+    /* TELA DE ESTUDO */
+    #tela-estudo { display: none; }
+    .progresso-bar { background: #dde8f0; border-radius: 20px; height: 8px; margin-bottom: 8px; }
+    .progresso-fill { background: #2d6a9f; height: 8px; border-radius: 20px; transition: width 0.4s; }
+    .progresso-texto { font-size: 0.82rem; color: #888; margin-bottom: 24px; display: flex; justify-content: space-between; }
+
+    /* CARD FLIP */
+    .card-scene { width: 100%; height: 300px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
+    .card-flip { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.4,0,0.2,1); }
+    .card-scene.virado .card-flip { transform: rotateY(180deg); }
+    .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .card-frente { background: white; border-top: 5px solid #2d6a9f; }
+    .card-verso { background: #eef6ff; border-top: 5px solid #2e9e5b; transform: rotateY(180deg); }
+    .card-label { font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #aaa; margin-bottom: 14px; }
+    .card-frente .card-label { color: #2d6a9f; }
+    .card-verso .card-label { color: #2e9e5b; }
+    .card-texto { font-size: 1.05rem; text-align: center; color: #222; line-height: 1.6; }
+    .card-dica { font-size: 0.82rem; color: #888; margin-top: 16px; text-align: center; }
+
+    .acoes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .acao-btn { padding: 12px; border-radius: 10px; border: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+    .btn-errei { background: #fdf0f0; color: #d94f4f; border: 2px solid #f5c0c0; }
+    .btn-errei:hover { background: #fad5d5; }
+    .btn-revisar { background: #fff8e8; color: #b07a00; border: 2px solid #f5e0a0; }
+    .btn-revisar:hover { background: #faecc0; }
+    .btn-acertei { background: #eef8f2; color: #2e9e5b; border: 2px solid #b0e0c0; }
+    .btn-acertei:hover { background: #d0f0dc; }
+
+    .hint-virar { text-align: center; font-size: 0.82rem; color: #aaa; margin-bottom: 8px; }
+
+    /* TELA DE RESULTADO */
+    #tela-resultado { display: none; }
+    .resultado-card { background: white; border-radius: 16px; padding: 36px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .resultado-emoji { font-size: 3rem; margin-bottom: 12px; }
+    .resultado-titulo { font-size: 1.4rem; font-weight: bold; color: #1a4f78; margin-bottom: 8px; }
+    .resultado-stats { display: flex; justify-content: center; gap: 24px; margin: 24px 0; }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: bold; }
+    .stat-label { font-size: 0.8rem; color: #888; margin-top: 2px; }
+    .stat.verde .stat-num { color: #2e9e5b; }
+    .stat.amarelo .stat-num { color: #b07a00; }
+    .stat.verm .stat-num { color: #d94f4f; }
+    .btns-resultado { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .btn-resultado { padding: 12px 24px; border-radius: 10px; border: none; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; }
+    .btn-rever { background: #fff8e8; color: #b07a00; border: 2px solid #f5e0a0; }
+    .btn-nova { background: #2d6a9f; color: white; }
+    .btn-nova:hover { background: #1f5080; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">← Voltar</a>
+  <h1>🃏 Flashcards</h1>
+</header>
+
+<main>
+
+  <!-- TELA DE CONFIGURAÇÃO -->
+  <div id="tela-config">
+    <div class="config-card">
+      <h2>📚 Escolha a matéria</h2>
+      <div class="materias-grid">
+        <button class="mat-btn ativo" onclick="selecionarMateria('atuarial', this)">📐 Mat. Atuarial</button>
+        <button class="mat-btn" onclick="selecionarMateria('probabilidade', this)">🎲 Probabilidade</button>
+        <button class="mat-btn" onclick="selecionarMateria('financeira', this)">💰 Mat. Financeira</button>
+        <button class="mat-btn" onclick="selecionarMateria('risco', this)">⚠️ Teoria do Risco</button>
+        <button class="mat-btn" onclick="selecionarMateria('todas', this)">🔀 Todas misturadas</button>
+      </div>
+      <h2>🔢 Quantos cards por sessão?</h2>
+      <div class="qtd-row">
+        <button class="qtd-btn ativo" onclick="selecionarQtd(5, this)">5</button>
+        <button class="qtd-btn" onclick="selecionarQtd(10, this)">10</button>
+        <button class="qtd-btn" onclick="selecionarQtd(15, this)">15</button>
+        <button class="qtd-btn" onclick="selecionarQtd(20, this)">20</button>
+        <button class="qtd-btn" onclick="selecionarQtd(999, this)">Todos</button>
+      </div>
+      <button class="btn-iniciar" onclick="iniciarSessao()">🚀 Iniciar sessão</button>
+    </div>
+  </div>
+
+  <!-- TELA DE ESTUDO -->
+  <div id="tela-estudo">
+    <div class="progresso-bar"><div class="progresso-fill" id="progresso-fill"></div></div>
+    <div class="progresso-texto">
+      <span id="progresso-texto">Card 1 de 10</span>
+      <span id="progresso-restante"></span>
+    </div>
+
+    <div class="hint-virar">👆 Clique no card para ver a resposta</div>
+
+    <div class="card-scene" id="card-scene" onclick="virarCard()">
+      <div class="card-flip" id="card-flip">
+        <div class="card-face card-frente">
+          <div class="card-label">Pergunta</div>
+          <div class="card-texto" id="card-frente-texto"></div>
+        </div>
+        <div class="card-face card-verso">
+          <div class="card-label">Resposta</div>
+          <div class="card-texto" id="card-verso-texto"></div>
+          <div class="card-dica" id="card-dica-texto"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acoes" id="acoes" style="display:none">
+      <button class="acao-btn btn-errei" onclick="avaliar('errei')">❌ Errei</button>
+      <button class="acao-btn btn-revisar" onclick="avaliar('revisar')">🔁 Revisar</button>
+      <button class="acao-btn btn-acertei" onclick="avaliar('acertei')">✅ Acertei</button>
+    </div>
+  </div>
+
+  <!-- TELA DE RESULTADO -->
+  <div id="tela-resultado">
+    <div class="resultado-card">
+      <div class="resultado-emoji" id="res-emoji">🎉</div>
+      <div class="resultado-titulo" id="res-titulo">Sessão concluída!</div>
+      <div class="resultado-stats">
+        <div class="stat verde"><div class="stat-num" id="res-acertei">0</div><div class="stat-label">Acertei</div></div>
+        <div class="stat amarelo"><div class="stat-num" id="res-revisar">0</div><div class="stat-label">Revisar</div></div>
+        <div class="stat verm"><div class="stat-num" id="res-errei">0</div><div class="stat-label">Errei</div></div>
+      </div>
+      <div class="btns-resultado">
+        <button class="btn-resultado btn-rever" onclick="rever()">🔁 Refazer os que errei</button>
+        <button class="btn-resultado btn-nova" onclick="novaSessao()">🆕 Nova sessão</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const banco = {
+  atuarial: [
+    { f: "O que é $l_x$?", v: "$l_x$ = número de sobreviventes à idade exata $x$ numa coorte inicial $l_0$", d: "Dica: $l_{x+1} = l_x - d_x$" },
+    { f: "Como calcular $d_x$?", v: "$$d_x = l_x - l_{x+1} = q_x \\cdot l_x$$", d: "Óbitos entre $x$ e $x+1$" },
+    { f: "O que é $q_x$?", v: "$$q_x = \\frac{d_x}{l_x} = 1 - \\frac{l_{x+1}}{l_x}$$", d: "Probabilidade de morrer antes de $x+1$" },
+    { f: "O que é $p_x$?", v: "$$p_x = 1 - q_x = \\frac{l_{x+1}}{l_x}$$", d: "Complementar de $q_x$. Prob. de sobreviver de $x$ a $x+1$" },
+    { f: "Como calcular $_np_x$?", v: "$$_np_x = \\frac{l_{x+n}}{l_x}$$", d: "Prob. de sobreviver $n$ anos a partir de $x$" },
+    { f: "Como calcular $_nq_x$?", v: "$$_nq_x = 1 - {_np_x} = \\frac{l_x - l_{x+n}}{l_x}$$", d: "Prob. de morrer dentro de $n$ anos" },
+    { f: "O que é o comutador $D_x$?", v: "$$D_x = l_x \\cdot v^x, \\quad v = \\frac{1}{1+i}$$", d: "Base de todos os comutadores" },
+    { f: "Como calcular $N_x$?", v: "$$N_x = D_x + D_{x+1} + \\cdots + D_\\omega$$", d: "Soma acumulada dos $D$. Usada em rendas." },
+    { f: "Como calcular $C_x$?", v: "$$C_x = d_x \\cdot v^{x+1}$$", d: "VP do pagamento no ano de morte" },
+    { f: "Como calcular $M_x$?", v: "$$M_x = C_x + C_{x+1} + \\cdots + C_\\omega$$", d: "Soma acumulada dos $C$. Usada em seguros." },
+    { f: "Fórmula da renda vitalícia antecipada $\\ddot{a}_x$?", v: "$$\\ddot{a}_x = \\frac{N_x}{D_x}$$", d: "Pagamentos no início de cada período" },
+    { f: "Fórmula da renda vitalícia postecipada $a_x$?", v: "$$a_x = \\frac{N_{x+1}}{D_x}$$", d: "Pagamentos no final de cada período" },
+    { f: "Fórmula da renda temporária antecipada?", v: "$$\\ddot{a}_{x:\\overline{n}|} = \\frac{N_x - N_{x+n}}{D_x}$$", d: "Limitada a $n$ anos, no início" },
+    { f: "Qual é a identidade fundamental das rendas?", v: "$$\\ddot{a}_{x:\\overline{n}|} + {_nE_x} \\cdot \\ddot{a}_{x+n} = \\ddot{a}_x$$", d: "Temporária + diferida = vitalícia. Sempre use para verificar!" },
+    { f: "Fórmula do seguro vida inteira $A_x$?", v: "$$A_x = \\frac{M_x}{D_x}$$", d: "Paga 1 no final do ano de morte" },
+    { f: "Fórmula do dote puro $_nE_x$?", v: "$$_nE_x = \\frac{D_{x+n}}{D_x} = \\frac{l_{x+n}}{l_x} \\cdot v^n$$", d: "Paga 1 se sobreviver $n$ anos" },
+    { f: "Relação entre $A_x$ e $\\ddot{a}_x$?", v: "$$A_x = 1 - d \\cdot \\ddot{a}_x, \\quad d = \\frac{i}{1+i}$$", d: "Converte seguro em renda e vice-versa" },
+    { f: "Fórmula do prêmio anual nivelado?", v: "$$P = \\frac{\\text{Capital} \\times A_x}{\\ddot{a}_{x:\\overline{n}|}}$$", d: "Princípio da equivalência: VP(prêmios) = VP(benefícios)" },
+    { f: "O que é a reserva prospectiva?", v: "$${_tV} = VP(\\text{benef. futuros}) - VP(\\text{prêm. futuros})$$", d: "Olha para FRENTE. Valor necessário no tempo $t$" },
+    { f: "Fórmula da reserva por recursão?", v: "$$({_tV} + P)(1+i) = q_{x+t} \\cdot C + p_{x+t} \\cdot {}_{t+1}V$$", d: "Avança a reserva um período" },
+    { f: "Identidade das rendas com múltiplas vidas?", v: "$$\\ddot{a}_{xy} + \\ddot{a}_{\\overline{xy}} = \\ddot{a}_x + \\ddot{a}_y$$", d: "Joint-life + último sobrevivente = soma das vitalícias" },
+  ],
+  probabilidade: [
+    { f: "Fórmula da probabilidade condicional?", v: "$$P(A|B) = \\frac{P(A \\cap B)}{P(B)}$$", d: "Prob. de $A$ dado que $B$ ocorreu" },
+    { f: "Quando $A$ e $B$ são independentes?", v: "$$P(A \\cap B) = P(A) \\cdot P(B)$$", d: "Independência ≠ exclusão mútua!" },
+    { f: "Teorema de Bayes?", v: "$$P(A_i|B) = \\frac{P(B|A_i) \\cdot P(A_i)}{\\sum_j P(B|A_j) \\cdot P(A_j)}$$", d: "Atualiza probabilidades com nova evidência" },
+    { f: "Média e variância da Poisson($\\lambda$)?", v: "$$E[X] = Var[X] = \\lambda$$", d: "Média = Variância. Único caso assim!" },
+    { f: "Média e variância da Binomial($n$,$p$)?", v: "$$E = np; \\quad Var = np(1-p)$$", d: "Var < Média (ao contrário da Binomial Negativa)" },
+    { f: "Propriedade da Exponencial (falta de memória)?", v: "$$P(X > s+t \\mid X > s) = P(X > t)$$", d: "Única distribuição contínua com esta propriedade" },
+    { f: "Média e variância da Exponencial($\\lambda$)?", v: "$$E = \\frac{1}{\\lambda}; \\quad Var = \\frac{1}{\\lambda^2}; \\quad P(X>t) = e^{-\\lambda t}$$", d: "" },
+    { f: "O que é a Binomial Negativa em modelos de risco?", v: "Mistura Poisson-Gama. Frequência com heterogeneidade entre segurados. $Var > E$.", d: "BN: superdispersão. Poisson: equidispersão. Binomial: subdispersão." },
+    { f: "Valor de $z_{\\alpha/2}$ para IC 95%?", v: "$$z_{0,025} = 1{,}96$$", d: "Memorize também: $z_{0,005} = 2{,}576$ (99%) e $z_{0,05} = 1{,}645$ (90%)" },
+    { f: "Identidade fundamental dos momentos?", v: "$$E[X^2] = Var(X) + [E(X)]^2$$", d: "Usada em todo cálculo de variância" },
+  ],
+  financeira: [
+    { f: "Fórmula do valor futuro em juros compostos?", v: "$$VF = VP \\cdot (1+i)^n$$", d: "Nunca use juros simples para prazos longos!" },
+    { f: "Como converter taxa mensal para anual?", v: "$$i_a = (1 + i_m)^{12} - 1$$", d: "$(1{,}005)^{12} \\approx 1{,}0617$. Taxa de 6,17% ao ano." },
+    { f: "Qual é a diferença entre taxa nominal e efetiva?", v: "$12 \\times 0{,}5\\% = 6\\%$ é NOMINAL. Efetiva $= (1{,}005)^{12} - 1 = 6{,}17\\%$", d: "NUNCA some taxas mensais para obter a anual!" },
+    { f: "Fórmula da anuidade postecipada (VP)?", v: "$$VP = PMT \\cdot \\frac{1-(1+i)^{-n}}{i}$$", d: "1º pagamento após 1 período" },
+    { f: "Como converter postecipada em antecipada?", v: "$$VP_{due} = VP_{post} \\cdot (1+i)$$", d: "'No ato' = antecipada. '1 mês após' = postecipada." },
+    { f: "Fórmula da perpetuidade?", v: "$$VP = \\frac{PMT}{i} \\quad \\text{(postecipada)}$$", d: "Renda que dura para sempre" },
+    { f: "Diferença entre Price e SAC?", v: "Price: parcela CONSTANTE, amortização crescente. SAC: parcela DECRESCENTE, amortização constante ($VP/n$).", d: "Juros totais no Price > SAC" },
+    { f: "Como decai o saldo no SAC?", v: "$$SD_t = VP - \\frac{VP}{n} \\cdot t$$", d: "Decai LINEARMENTE. Fácil de calcular qualquer saldo!" },
+    { f: "Equação de Fisher?", v: "$$(1 + i_{nom}) = (1 + i_{real})(1 + \\pi)$$", d: "$\\pi$ = inflação. Relaciona taxa real, nominal e inflação." },
+  ],
+  risco: [
+    { f: "Fórmula de $E[S]$ no modelo coletivo?", v: "$$E[S] = E[N] \\cdot E[Y]$$", d: "$N$ = frequência, $Y$ = severidade" },
+    { f: "Fórmula de $Var[S]$ no modelo coletivo?", v: "$$Var[S] = E[N] \\cdot Var[Y] + Var[N] \\cdot (E[Y])^2$$", d: "Fórmula de variância total — muito cobrada!" },
+    { f: "O que é resseguro XL (Excess of Loss)?", v: "Ressegurador paga: $\\max(0, S - \\text{Retenção})$. Se retenção aumenta, taxa do XL diminui.", d: "Protege contra sinistros individuais grandes" },
+    { f: "O que é resseguro Stop Loss?", v: "Ressegurador paga: $\\max(0, S_{total} - \\text{Limite})$. Protege o resultado TOTAL.", d: "Diferente do XL: aqui é sobre o agregado" },
+    { f: "Mínimo de exponenciais independentes?", v: "$$\\min(\\text{Exp}(\\lambda_1),\\ldots,\\text{Exp}(\\lambda_k)) \\sim \\text{Exp}\\!\\left(\\sum \\lambda_i\\right)$$", d: "Tempo até o PRIMEIRO sinistro com $k$ riscos" },
+    { f: "O que é seleção adversa vs risco moral?", v: "Adversa: PRÉ-contrato (mais arriscados atraídos). Moral: PÓS-contrato (comportamento muda).", d: "Adversa = antes. Moral = depois. Nunca confundir!" },
+  ]
+};
+
+let materiaAtual = 'atuarial';
+let qtdAtual = 5;
+let deck = [];
+let indice = 0;
+let virado = false;
+let resultados = { acertei: 0, revisar: 0, errei: 0 };
+let cardsMarcados = [];
+
+function selecionarMateria(m, btn) {
+  document.querySelectorAll('.mat-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  materiaAtual = m;
+}
+
+function selecionarQtd(q, btn) {
+  document.querySelectorAll('.qtd-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  qtdAtual = q;
+}
+
+function iniciarSessao() {
+  let cards = [];
+  if (materiaAtual === 'todas') {
+    Object.values(banco).forEach(arr => cards.push(...arr));
+  } else {
+    cards = [...(banco[materiaAtual] || [])];
+  }
+  // Embaralha
+  cards.sort(() => Math.random() - 0.5);
+  deck = cards.slice(0, Math.min(qtdAtual, cards.length));
+  indice = 0;
+  resultados = { acertei: 0, revisar: 0, errei: 0 };
+  cardsMarcados = [];
+  document.getElementById('tela-config').style.display = 'none';
+  document.getElementById('tela-resultado').style.display = 'none';
+  document.getElementById('tela-estudo').style.display = 'block';
+  mostrarCard();
+}
+
+function mostrarCard() {
+  if (indice >= deck.length) { mostrarResultado(); return; }
+  const card = deck[indice];
+  virado = false;
+  document.getElementById('card-scene').classList.remove('virado');
+  document.getElementById('acoes').style.display = 'none';
+  document.getElementById('card-frente-texto').innerHTML = card.f;
+  document.getElementById('card-verso-texto').innerHTML = card.v;
+  document.getElementById('card-dica-texto').innerHTML = card.d || '';
+  atualizarProgresso();
+  renderizarKatex();
+}
+
+function virarCard() {
+  if (virado) return;
+  virado = true;
+  document.getElementById('card-scene').classList.add('virado');
+  setTimeout(() => {
+    document.getElementById('acoes').style.display = 'grid';
+  }, 300);
+}
+
+function avaliar(tipo) {
+  resultados[tipo]++;
+  cardsMarcados.push({ card: deck[indice], tipo });
+  indice++;
+  mostrarCard();
+}
+
+function atualizarProgresso() {
+  const pct = (indice / deck.length) * 100;
+  document.getElementById('progresso-fill').style.width = pct + '%';
+  document.getElementById('progresso-texto').textContent = `Card ${indice + 1} de ${deck.length}`;
+  document.getElementById('progresso-restante').textContent = `${deck.length - indice} restantes`;
+}
+
+function mostrarResultado() {
+  document.getElementById('tela-estudo').style.display = 'none';
+  document.getElementById('tela-resultado').style.display = 'block';
+  document.getElementById('res-acertei').textContent = resultados.acertei;
+  document.getElementById('res-revisar').textContent = resultados.revisar;
+  document.getElementById('res-errei').textContent = resultados.errei;
+  const pct = Math.round((resultados.acertei / deck.length) * 100);
+  document.getElementById('res-emoji').textContent = pct >= 80 ? '🎉' : pct >= 50 ? '💪' : '📚';
+  document.getElementById('res-titulo').textContent = pct >= 80 ? 'Ótimo desempenho!' : pct >= 50 ? 'Bom progresso!' : 'Continue praticando!';
+}
+
+function rever() {
+  const errados = cardsMarcados.filter(c => c.tipo === 'errei' || c.tipo === 'revisar').map(c => c.card);
+  if (errados.length === 0) { novaSessao(); return; }
+  deck = errados;
+  indice = 0;
+  resultados = { acertei: 0, revisar: 0, errei: 0 };
+  cardsMarcados = [];
+  document.getElementById('tela-resultado').style.display = 'none';
+  document.getElementById('tela-estudo').style.display = 'block';
+  mostrarCard();
+}
+
+function novaSessao() {
+  document.getElementById('tela-resultado').style.display = 'none';
+  document.getElementById('tela-config').style.display = 'block';
+}
+
+function renderizarKatex() {
+  setTimeout(() => {
+    if (window.renderMathInElement) {
+      renderMathInElement(document.getElementById('tela-estudo'), {
+        delimiters: [
+          {left:'$$', right:'$$', display:true},
+          {left:'$', right:'$', display:false}
+        ]
+      });
+    }
+  }, 50);
+}
+
+function iniciar() {
+  // chamado pelo onload do KaTeX auto-render
+}
+</script>
+</body>
+</html>

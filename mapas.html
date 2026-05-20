@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapas Mentais - Meus Estudos</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markmap-view@0.16"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.16"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+    header { background-color: #2d6a9f; color: white; padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+    header a { color: white; text-decoration: none; font-size: 1.4rem; }
+    header h1 { margin: 0; font-size: 1.4rem; }
+
+    main { padding: 30px; max-width: 1100px; margin: 0 auto; }
+
+    .abas { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+    .aba-btn { padding: 9px 20px; border-radius: 20px; border: 2px solid #b0cfe8; background: white; color: #2d6a9f; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; }
+    .aba-btn:hover, .aba-btn.ativo { background: #2d6a9f; color: white; border-color: #2d6a9f; }
+
+    .mapa-section { display: none; }
+    .mapa-section.visivel { display: block; }
+
+    .mapa-titulo { font-size: 1.1rem; font-weight: bold; color: #1a4f78; margin: 0 0 8px; }
+    .mapa-desc { font-size: 0.85rem; color: #666; margin-bottom: 16px; }
+
+    .mapa-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 32px;
+      overflow: hidden;
+    }
+    .mapa-card-header {
+      padding: 16px 24px;
+      background: #e8f2fb;
+      border-bottom: 1px solid #d0e4f5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .mapa-card-header h2 { margin: 0; font-size: 1rem; color: #2d6a9f; }
+    .mapa-card-header .dica { font-size: 0.8rem; color: #888; }
+
+    .mapa-wrapper { width: 100%; height: 500px; position: relative; }
+    .mapa-wrapper svg { width: 100%; height: 100%; }
+
+    .controles { display: flex; gap: 8px; padding: 10px 24px; border-top: 1px solid #eee; background: #fafcff; }
+    .ctrl-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid #b0cfe8; background: white; color: #2d6a9f; font-size: 0.82rem; cursor: pointer; transition: background 0.2s; }
+    .ctrl-btn:hover { background: #e8f2fb; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">← Voltar</a>
+  <h1>🗺️ Mapas Mentais</h1>
+</header>
+
+<main>
+  <div class="abas">
+    <button class="aba-btn ativo" onclick="trocarAba('atuarial', this)">📐 Mat. Atuarial</button>
+    <button class="aba-btn" onclick="trocarAba('probabilidade', this)">🎲 Probabilidade</button>
+    <button class="aba-btn" onclick="trocarAba('financeira', this)">💰 Mat. Financeira</button>
+    <button class="aba-btn" onclick="trocarAba('risco', this)">⚠️ Teoria do Risco</button>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- MATEMÁTICA ATUARIAL -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="mapa-section visivel" id="sec-atuarial">
+
+    <!-- Mapa 1: Tábua de Mortalidade -->
+    <div class="mapa-card">
+      <div class="mapa-card-header">
+        <h2>🧬 Tábua de Mortalidade</h2>
+        <span class="dica">Scroll para zoom · Arraste para mover</span>
+      </div>
+      <div class="mapa-wrapper" id="mm1"></div>
+      <div class="controles">
+        <button class="ctrl-btn" onclick="resetar('mm1')">↺ Resetar</button>
+        <button class="ctrl-btn" onclick="expandir('mm1')">⊕ Expandir tudo</button>
+      </div>
+    </div>
+
+    <!-- Mapa 2: Comutadores e Rendas -->
+    <div class="mapa-card">
+      <div class="mapa-card-header">
+        <h2>📊 Comutadores e Rendas Vitalícias</h2>
+        <span class="dica">Scroll para zoom · Arraste para mover</span>
+      </div>
+      <div class="mapa-wrapper" id="mm2"></div>
+      <div class="controles">
+        <button class="ctrl-btn" onclick="resetar('mm2')">↺ Resetar</button>
+        <button class="ctrl-btn" onclick="expandir('mm2')">⊕ Expandir tudo</button>
+      </div>
+    </div>
+
+    <!-- Mapa 3: Seguros e Reservas -->
+    <div class="mapa-card">
+      <div class="mapa-card-header">
+        <h2>🔒 Seguros de Vida e Reservas</h2>
+        <span class="dica">Scroll para zoom · Arraste para mover</span>
+      </div>
+      <div class="mapa-wrapper" id="mm3"></div>
+      <div class="controles">
+        <button class="ctrl-btn" onclick="resetar('mm3')">↺ Resetar</button>
+        <button class="ctrl-btn" onclick="expandir('mm3')">⊕ Expandir tudo</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PROBABILIDADE -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="mapa-section" id="sec-probabilidade">
+    <div class="mapa-card">
+      <div class="mapa-card-header">
+        <h2>🎲 Probabilidade — Visão Geral</h2>
+        <span class="dica">Scroll para zoom · Arraste para mover</span>
+      </div>
+      <div class="mapa-wrapper" id="mm4"></div>
+      <div class="controles">
+        <button class="ctrl-btn" onclick="resetar('mm4')">↺ Resetar</button>
+        <button class="ctrl-btn" onclick="expandir('mm4')">⊕ Expandir tudo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- MATEMÁTICA FINANCEIRA -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="mapa-section" id="sec-financeira">
+    <div class="mapa-card">
+      <div class="mapa-card-header">
+        <h2>💰 Matemática Financeira — Visão Geral</h2>
+        <span class="dica">Scroll para zoom · Arraste para mover</span>
+      </div>
+      <div class="mapa-wrapper" id="mm5"></div>
+      <div class="controles">
+        <button class="ctrl-btn" onclick="resetar('mm5')">↺ Resetar</button>
+        <button class="ctrl-btn" onclick="expandir('mm5')">⊕ Expandir tudo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- TEORIA DO RISCO -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="mapa-section" id="sec-risco">
+    <div class="mapa-card">
+      <div class="mapa-card-header">
+        <h2>⚠️ Teoria do Risco — Visão Geral</h2>
+        <span class="dica">Scroll para zoom · Arraste para mover</span>
+      </div>
+      <div class="mapa-wrapper" id="mm6"></div>
+      <div class="controles">
+        <button class="ctrl-btn" onclick="resetar('mm6')">↺ Resetar</button>
+        <button class="ctrl-btn" onclick="expandir('mm6')">⊕ Expandir tudo</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const { Transformer } = window.markmap;
+const transformer = new Transformer();
+const mapas = {};
+
+const conteudos = {
+  mm1: `# Tábua de Mortalidade
+## Funções principais
+### lx — sobreviventes
+- Número de vivos na idade x
+- lx+1 = lx − dx
+- Começa em l0 (coorte inicial)
+### dx — óbitos
+- dx = lx − lx+1
+- dx = qx · lx
+### qx — prob. de morte
+- qx = dx / lx
+- qx = 1 − (lx+1 / lx)
+- Entre 0 e 1
+### px — prob. de sobrevivência
+- px = 1 − qx
+- px = lx+1 / lx
+- Complementar de qx
+## Funções com n anos
+### nPx — sobreviver n anos
+- nPx = lx+n / lx
+- Produto: px · px+1 · … · px+n-1
+### nQx — morrer em n anos
+- nQx = 1 − nPx
+- nQx = (lx − lx+n) / lx
+### m|nQx — diferida
+- Sobrevive m anos, morre nos n seguintes
+- = (lx+m − lx+m+n) / lx
+## Taxas e forças
+### Lx — anos vividos
+- Lx ≈ (lx + lx+1) / 2
+- Exposição ao risco no intervalo
+### mx — taxa central
+- mx = dx / Lx
+- Diferente de qx!
+### μx — força de mortalidade
+- Taxa instantânea de mortalidade
+- Hipótese exponencial: nPx = e^(−μn)`,
+
+  mm2: `# Comutadores e Rendas
+## Comutadores básicos
+### Dx
+- Dx = lx · v^x
+- v = 1/(1+i)
+### Nx
+- Nx = Dx + Dx+1 + … + Dω
+- Soma acumulada dos D
+### Cx
+- Cx = dx · v^(x+1)
+- Base dos seguros
+### Mx
+- Mx = Cx + Cx+1 + … + Cω
+- Soma acumulada dos C
+### Sx
+- Sx = Nx + Nx+1 + …
+- Para rendas crescentes
+## Rendas vitalícias antecipadas
+### Vitalícia ä_x
+- ä_x = Nx / Dx
+- Pagamentos no início, para sempre
+### Temporária ä_{x:n|}
+- = (Nx − Nx+n) / Dx
+- Limitada a n anos
+### Diferida k|ä_x
+- = Nx+k / Dx
+- Começa após k anos
+### Temp. + diferida
+- k|ä_{x:n|} = (Nx+k − Nx+k+n) / Dx
+## Rendas vitalícias postecipadas
+### Vitalícia a_x
+- a_x = Nx+1 / Dx
+### Temporária a_{x:n|}
+- = (Nx+1 − Nx+n+1) / Dx
+### Diferida k|a_x
+- = Nx+k+1 / Dx
+## Identidade fundamental
+### ä_{x:n|} + nEx · ä_{x+n} = ä_x
+- Temporária + diferida = vitalícia
+- USE SEMPRE para verificar`,
+
+  mm3: `# Seguros de Vida e Reservas
+## Seguros com comutadores
+### Vida inteira Ax
+- Ax = Mx / Dx
+- Paga 1 no ano de morte
+### Temporário A¹_{x:n|}
+- = (Mx − Mx+n) / Dx
+- Só paga se morte em n anos
+### Dote puro nEx
+- nEx = Dx+n / Dx
+- Paga 1 se sobreviver n anos
+- = (lx+n / lx) · v^n
+### Dote misto A_{x:n|}
+- = A¹_{x:n|} + nEx
+- Morte OU sobrevivência
+## Relações entre A e ä
+### Ax = 1 − d · ä_x
+- d = i / (1+i) taxa de desconto
+### ä_x = (1 − Ax) / d
+- Converte seguro em renda
+## Prêmio puro
+### Princípio de equivalência
+- VP(prêmios) = VP(benefícios)
+### Prêmio único
+- P¹ = Capital · Ax
+### Prêmio anual nivelado
+- P = Capital · Ax / ä_{x:n|}
+- n = período de pagamento
+## Reservas
+### Prospectiva (olha para frente)
+- tV = VP(benef. futuros) − VP(prêm. futuros)
+### Retrospectiva (olha para trás)
+- tV = VA(prêm. passados) − VA(benef. passados)
+- Mesmo resultado com premissas consistentes
+### Recursão
+- (tV + P)(1+i) = qx+t · C + px+t · t+1V
+## Múltiplas vidas
+### Status conjunto ä_{xy}
+- Paga enquanto x E y vivem
+- Cessa na primeira morte
+### Status último ä_{xy_}
+- Paga enquanto x OU y vive
+- Cessa quando ambos morrem
+### Identidade
+- ä_{xy} + ä_{xy_} = ä_x + ä_y
+### Pensão reversível
+- x para y: VP = ä_y − ä_{xy}`,
+
+  mm4: `# Probabilidade
+## Fundamentos
+### Adição
+- P(A∪B) = P(A) + P(B) − P(A∩B)
+- Se exclusivos: P(A∩B) = 0
+### Condicional
+- P(A|B) = P(A∩B) / P(B)
+### Independência
+- P(A∩B) = P(A)·P(B)
+### Bayes
+- P(Ai|B) = P(B|Ai)·P(Ai) / ΣP(B|Aj)·P(Aj)
+## Distribuições discretas
+### Poisson(λ)
+- E = Var = λ (média = variância!)
+- Frequência de sinistros
+### Binomial(n,p)
+- E = np; Var = np(1−p)
+- Média > variância
+### Binomial Negativa(r,p)
+- Var > média (heterogeneidade)
+- Mistura Poisson-Gama
+### Geométrica(p)
+- E = 1/p; falta de memória discreta
+## Distribuições contínuas
+### Normal(μ,σ²)
+- Simétrica; P(X>μ) = 0,5
+- TCL: amostras grandes → Normal
+### Exponencial(λ)
+- E = 1/λ; Var = 1/λ²
+- Falta de memória!
+- P(X>t) = e^(−λt)
+### Gama(α,β)
+- E = α/β; Var = α/β²
+- Generaliza a Exponencial
+### Pareto(α,x0)
+- Cauda pesada — catástrofes
+### Lognormal(μ,σ²)
+- ln(X)~N; sempre positiva
+## Estimação
+### EMV
+- Poisson: λ̂ = x̄
+- Exponencial: λ̂ = 1/x̄
+### Intervalos de confiança
+- z₀,₀₂₅ = 1,96 (95%)
+- z₀,₀₀₅ = 2,576 (99%)`,
+
+  mm5: `# Matemática Financeira
+## Juros compostos
+### Valor futuro
+- VF = VP·(1+i)^n
+### Valor presente
+- VP = VF / (1+i)^n
+### Taxa efetiva anual
+- ia = (1+im)^12 − 1
+- (1,005)^12 ≈ 1,0617
+### Taxa mensal equivalente
+- im = (1+ia)^(1/12) − 1
+### Fisher
+- (1+inom) = (1+ireal)(1+π)
+### ATENÇÃO: nominal ≠ efetiva
+- 12 × 0,5% = 6% é NOMINAL
+- Efetiva = 6,17%
+## Anuidades
+### Postecipada VP
+- VP = PMT · [1−(1+i)^(−n)] / i
+- 1º pagamento após 1 período
+### Antecipada (due)
+- VP_due = VP_post · (1+i)
+- 1º pagamento imediato
+### Perpetuidade
+- VP = PMT / i (postecipada)
+- VP = PMT / d (antecipada)
+### Diferida k períodos
+- VP = VP_anuidade · v^k
+## Amortização
+### Price (francês)
+- Parcela CONSTANTE
+- Amortização crescente
+- Juros totais MAIORES que SAC
+### SAC
+- Parcela DECRESCENTE
+- Amortização CONSTANTE = VP/n
+- Saldo decai LINEARMENTE
+- Juros totais menores que Price
+## Investimentos
+### VPL
+- VPL > 0: aceitar projeto
+### TIR
+- TIR > TMA: aceitar
+### Duration (Macaulay)
+- Sensibilidade do preço à taxa`,
+
+  mm6: `# Teoria do Risco
+## Modelo coletivo
+### Sinistro total S
+- S = Y1 + Y2 + … + YN
+- N = frequência (aleatória)
+- Yi = severidade (iid)
+### E[S]
+- E[S] = E[N] · E[Y]
+- Base do prêmio puro
+### Var[S]
+- Var[S] = E[N]·Var[Y] + Var[N]·(E[Y])²
+- Fórmula de variância total
+### FGM
+- MS(t) = MN(ln MY(t))
+## Distribuições de frequência
+### Poisson(λ)
+- E = Var = λ
+- Processo mais comum
+### Binomial Negativa
+- Heterogeneidade entre segurados
+- Var > média
+## Distribuições de severidade
+### Exponencial
+- Falta de memória
+- Simples, cauda leve
+### Pareto
+- Cauda pesada
+- Sinistros catastróficos
+### Lognormal
+- Assimétrica positiva
+- Muito usada na prática
+## Resseguro
+### XL (Excess of Loss)
+- Ressegurador paga: max(0, S − Retenção)
+- Taxa diminui se retenção aumenta
+### Stop Loss
+- Sobre sinistro TOTAL
+- Protege resultado global
+### Proporcional
+- Cedente retém q%; resseg. (1−q)%
+## Processos estocásticos
+### Processo de Poisson
+- Dado N(t)=n, instantes ~ U[0,t]
+### Mínimo de exponenciais
+- min(Exp(λ1),…,Exp(λk)) ~ Exp(Σλi)`
+};
+
+function criarMapa(id, conteudo) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const { root } = transformer.transform(conteudo);
+  const mm = markmap.Markmap.create(el.querySelector('svg') || criarSVG(el), {
+    maxWidth: 300,
+    colorFreezeLevel: 2,
+    duration: 300,
+    paddingX: 20,
+  }, root);
+  mapas[id] = mm;
+}
+
+function criarSVG(container) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.style.width = '100%';
+  svg.style.height = '100%';
+  container.appendChild(svg);
+  return svg;
+}
+
+function resetar(id) {
+  if (mapas[id]) mapas[id].fit();
+}
+
+function expandir(id) {
+  if (mapas[id]) {
+    mapas[id].setData(mapas[id].state.data, { open: true });
+    setTimeout(() => mapas[id].fit(), 350);
+  }
+}
+
+function trocarAba(aba, btn) {
+  document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  document.querySelectorAll('.mapa-section').forEach(s => s.classList.remove('visivel'));
+  document.getElementById('sec-' + aba).classList.add('visivel');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Inicializa os mapas da aba ao abrir pela primeira vez
+  setTimeout(() => inicializarAba(aba), 100);
+}
+
+function inicializarAba(aba) {
+  const ids = { atuarial: ['mm1','mm2','mm3'], probabilidade: ['mm4'], financeira: ['mm5'], risco: ['mm6'] };
+  (ids[aba] || []).forEach(id => {
+    if (!mapas[id]) criarMapa(id, conteudos[id]);
+  });
+}
+
+// Inicializa a aba visível ao carregar
+window.addEventListener('load', () => {
+  setTimeout(() => inicializarAba('atuarial'), 300);
+});
+</script>
+
+</body>
+</html>
