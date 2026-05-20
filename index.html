@@ -4,24 +4,71 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meus Estudos</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d6a9f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Estudos">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
   <style>
     body { font-family: Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
     header { background-color: #2d6a9f; color: white; padding: 30px; text-align: center; }
     header h1 { margin: 0; font-size: 2rem; }
     header p { margin: 8px 0 0; opacity: 0.85; }
+
+    .instalar-banner {
+      background: #1f5080;
+      color: white;
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .instalar-banner button {
+      background: white;
+      color: #2d6a9f;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
     .cards { display: flex; flex-wrap: wrap; gap: 20px; padding: 40px; justify-content: center; }
     .card { background: white; border-radius: 12px; padding: 30px; width: 200px; text-align: center; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
     .card:hover { transform: translateY(-4px); }
     .card span { font-size: 2.5rem; display: block; margin-bottom: 12px; }
     .card h2 { margin: 0; font-size: 1rem; }
     .card small { font-size: 0.75rem; color: #888; display: block; margin-top: 6px; }
+
+    /* Mobile responsivo */
+    @media (max-width: 500px) {
+      .cards { padding: 20px; gap: 14px; }
+      .card { width: 140px; padding: 20px; }
+      .card span { font-size: 2rem; }
+    }
   </style>
 </head>
 <body>
+
+  <div class="instalar-banner" id="banner-instalar">
+    📱 Instale como app no seu celular!
+    <button onclick="instalarApp()">Instalar</button>
+    <button onclick="fecharBanner()" style="background:transparent;color:white;border:1px solid white;">✕</button>
+  </div>
+
   <header>
     <h1>📚 Meus Estudos</h1>
     <p>Faculdade • Vestibular • Revisão</p>
   </header>
+
   <div class="cards">
     <a class="card" href="pdfs.html"><span>📄</span><h2>PDFs</h2><small>Material por matéria</small></a>
     <a class="card" href="simulados.html"><span>✏️</span><h2>Simulados</h2><small>Questões com IA</small></a>
@@ -29,5 +76,37 @@
     <a class="card" href="mapas.html"><span>🗺️</span><h2>Mapas Mentais</h2><small>Visão geral</small></a>
     <a class="card" href="formulas.html"><span>🔢</span><h2>Fórmulas</h2><small>Todas as matérias</small></a>
   </div>
+
+  <script>
+    // Registra o Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/meu-site/sw.js')
+        .then(() => console.log('Service Worker registrado!'))
+        .catch(err => console.log('Erro SW:', err));
+    }
+
+    // Botão de instalação
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('banner-instalar').style.display = 'flex';
+    });
+
+    function instalarApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+          fecharBanner();
+        });
+      }
+    }
+
+    function fecharBanner() {
+      document.getElementById('banner-instalar').style.display = 'none';
+    }
+  </script>
+
 </body>
 </html>
