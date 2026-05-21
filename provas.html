@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provas Anteriores - Meus Estudos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})">
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    header { background: #2d6a9f; color: white; padding: 20px 24px; display: flex; align-items: center; gap: 14px; }
+    header a { color: white; text-decoration: none; font-size: 1.4rem; }
+    header h1 { margin: 0; font-size: 1.3rem; }
+    main { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+
+    /* ABAS */
+    .abas { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+    .aba { padding: 9px 20px; border-radius: 20px; border: 2px solid #b0cfe8; background: white; color: #2d6a9f; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; }
+    .aba:hover, .aba.ativo { background: #2d6a9f; color: white; border-color: #2d6a9f; }
+
+    .tela { display: none; }
+    .tela.ativa { display: block; }
+
+    /* ═══ ANÁLISE ═══ */
+    .analise-header {
+      background: white; border-radius: 14px; padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 20px;
+    }
+    .analise-header h2 { color: #1a4f78; font-size: 1.1rem; margin-bottom: 6px; }
+    .analise-header p { color: #666; font-size: 0.88rem; line-height: 1.6; }
+
+    .freq-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .freq-card { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .freq-card h3 { font-size: 0.9rem; color: #1a4f78; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #e8f2fb; }
+
+    .tema-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .tema-nome { font-size: 0.82rem; color: #333; flex: 1; }
+    .tema-bar-wrap { width: 80px; height: 8px; background: #e0eaf2; border-radius: 10px; }
+    .tema-bar { height: 8px; border-radius: 10px; background: linear-gradient(90deg, #2d6a9f, #4a90c4); }
+    .tema-pct { font-size: 0.75rem; color: #2d6a9f; font-weight: bold; min-width: 30px; text-align: right; }
+
+    .alerta-box { background: #fff8e8; border: 1px solid #f5c842; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; }
+    .alerta-box h3 { font-size: 0.88rem; font-weight: bold; color: #7a5500; margin-bottom: 8px; }
+    .alerta-item { font-size: 0.83rem; color: #7a5500; line-height: 1.7; display: flex; gap: 8px; }
+    .alerta-item::before { content: "⚠️"; flex-shrink: 0; }
+
+    /* ═══ SIMULADOR ESTILO IBA ═══ */
+    .sim-config { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 20px; }
+    .sim-config h2 { color: #1a4f78; font-size: 1rem; margin-bottom: 18px; }
+    .form-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 160px; }
+    .form-group label { font-size: 0.82rem; color: #555; font-weight: bold; }
+    .form-group select { padding: 10px 14px; border-radius: 8px; border: 1px solid #d0dde8; font-size: 0.92rem; background: #f8fafc; }
+    .btn-gerar { width: 100%; padding: 13px; background: #1a4f78; color: white; border: none; border-radius: 10px; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; margin-top: 4px; }
+    .btn-gerar:hover { background: #2d6a9f; }
+    .btn-gerar:disabled { background: #90b4d0; cursor: not-allowed; }
+
+    .loading { text-align: center; padding: 36px; color: #2d6a9f; display: none; }
+    .spinner { width: 36px; height: 36px; border: 4px solid #ddeaf5; border-top-color: #2d6a9f; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .sim-container { display: none; }
+    .questao { background: white; border-radius: 12px; padding: 22px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .questao .num { font-size: 0.75rem; color: #2d6a9f; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .questao .enunciado { font-size: 0.95rem; color: #222; margin-bottom: 14px; line-height: 1.65; }
+    .alt { display: flex; align-items: flex-start; gap: 10px; padding: 9px 14px; border-radius: 8px; margin-bottom: 7px; cursor: pointer; border: 2px solid #e8f0f8; font-size: 0.9rem; line-height: 1.5; transition: all 0.15s; }
+    .alt:hover { background: #f0f6fc; border-color: #b0cfe8; }
+    .alt.correta { border-color: #2e9e5b; background: #eef8f2; color: #1a6b3a; }
+    .alt.errada  { border-color: #d94f4f; background: #fdf0f0; color: #8b2020; }
+    .letra { font-weight: bold; min-width: 20px; color: #2d6a9f; }
+    .alt.correta .letra { color: #1a6b3a; }
+    .alt.errada  .letra { color: #8b2020; }
+
+    .resolucao { display: none; margin-top: 12px; border-radius: 10px; overflow: hidden; }
+    .resolucao.show { display: block; }
+    .res-header { padding: 10px 16px; font-weight: bold; font-size: 0.88rem; }
+    .resolucao.acerto .res-header { background: #d4f0e0; color: #1a6b3a; }
+    .resolucao.erro   .res-header { background: #fad5d5; color: #8b2020; }
+    .res-body { padding: 14px 16px; background: #f8fcff; border: 1px solid #ddeaf5; border-top: none; border-radius: 0 0 10px 10px; font-size: 0.88rem; color: #333; line-height: 1.7; }
+    .res-dica { background: #fff8e8; border-left: 3px solid #f5c842; padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: 0.83rem; color: #7a5500; }
+    .res-padrao { background: #f0f6fc; border-left: 3px solid #2d6a9f; padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 8px; font-size: 0.83rem; color: #1a4f78; }
+
+    .resultado-card { background: white; border-radius: 12px; padding: 28px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 20px; display: none; }
+    .resultado-card .nota { font-size: 2.8rem; font-weight: bold; color: #2d6a9f; margin: 10px 0; }
+    .btn-novo { width: 100%; padding: 13px; background: #e8f2fb; color: #2d6a9f; border: 2px solid #b0cfe8; border-radius: 10px; font-size: 0.95rem; cursor: pointer; display: none; margin-bottom: 24px; }
+
+    .erro-msg { background: #fdf0f0; color: #8b2020; border-radius: 10px; padding: 14px; margin-top: 10px; font-size: 0.88rem; display: none; }
+
+    @media(max-width:500px) { .freq-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">← Voltar</a>
+  <h1>📋 Provas Anteriores IBA</h1>
+</header>
+
+<main>
+  <div class="abas">
+    <button class="aba ativo" onclick="trocarAba('analise', this)">📊 Análise das Provas</button>
+    <button class="aba" onclick="trocarAba('simulador', this)">🎯 Simulado Estilo IBA</button>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- ANÁLISE -->
+  <!-- ═══════════════════════════════════ -->
+  <div id="tela-analise" class="tela ativa">
+
+    <div class="analise-header">
+      <h2>📋 Análise das Provas IBA 2023, 2024 e 2025</h2>
+      <p>Baseado nas 3 provas que você enviou. Use isso para priorizar seus estudos — os temas que mais caem merecem mais atenção!</p>
+    </div>
+
+    <div class="alerta-box">
+      <h3>🔥 Temas que caem TODO ano (presentes nas 3 provas):</h3>
+      <div class="alerta-item">Provisões técnicas (PPNG, PSL, IBNR, PMBaC) — aparece em todas as provas de Gestão Atuarial</div>
+      <div class="alerta-item">Distribuição de Poisson — cálculo de probabilidades com e⁻λ aparece todo ano</div>
+      <div class="alerta-item">Tábua de mortalidade com comutadores — questões com Nx, Dx, rendas vitalícias</div>
+      <div class="alerta-item">Anuidades postecipadas e antecipadas — financiamento de veículos, imóveis, aposentadoria</div>
+      <div class="alerta-item">Sinistralidade e prêmio comercial — fórmula E[S]/π = (1−α)/(1+θ)</div>
+      <div class="alerta-item">Análise Discriminante vs PCA — questão clássica de classificação</div>
+      <div class="alerta-item">Ética: Comissão de Ética, penas, impedimento de membros</div>
+    </div>
+
+    <div class="freq-grid">
+
+      <div class="freq-card">
+        <h3>📋 Gestão Atuarial</h3>
+        <div class="tema-item"><span class="tema-nome">Provisões técnicas</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:100%"></div></div><span class="tema-pct">100%</span></div>
+        <div class="tema-item"><span class="tema-nome">Prêmio e sinistralidade</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:90%"></div></div><span class="tema-pct">90%</span></div>
+        <div class="tema-item"><span class="tema-nome">Resseguro XL / Stop Loss</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:85%"></div></div><span class="tema-pct">85%</span></div>
+        <div class="tema-item"><span class="tema-nome">Planos CD / BD / CV</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:80%"></div></div><span class="tema-pct">80%</span></div>
+        <div class="tema-item"><span class="tema-nome">Riscos (mercado, crédito, op.)</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:70%"></div></div><span class="tema-pct">70%</span></div>
+        <div class="tema-item"><span class="tema-nome">Testes de aderência biométrica</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:65%"></div></div><span class="tema-pct">65%</span></div>
+      </div>
+
+      <div class="freq-card">
+        <h3>🎲 Probabilidade e Estatística</h3>
+        <div class="tema-item"><span class="tema-nome">Distribuição de Poisson</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:100%"></div></div><span class="tema-pct">100%</span></div>
+        <div class="tema-item"><span class="tema-nome">Teorema de Bayes</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:90%"></div></div><span class="tema-pct">90%</span></div>
+        <div class="tema-item"><span class="tema-nome">EMV (Pareto, Exponencial)</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:85%"></div></div><span class="tema-pct">85%</span></div>
+        <div class="tema-item"><span class="tema-nome">Distribuição Exponencial</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:80%"></div></div><span class="tema-pct">80%</span></div>
+        <div class="tema-item"><span class="tema-nome">Erro Tipo I e II / Poder do teste</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:75%"></div></div><span class="tema-pct">75%</span></div>
+        <div class="tema-item"><span class="tema-nome">TCL e convergências</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:65%"></div></div><span class="tema-pct">65%</span></div>
+      </div>
+
+      <div class="freq-card">
+        <h3>📐 Matemática Atuarial</h3>
+        <div class="tema-item"><span class="tema-nome">Rendas vitalícias (Nx/Dx)</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:100%"></div></div><span class="tema-pct">100%</span></div>
+        <div class="tema-item"><span class="tema-nome">Dote puro e prêmio único</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:90%"></div></div><span class="tema-pct">90%</span></div>
+        <div class="tema-item"><span class="tema-nome">Reserva prospectiva</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:85%"></div></div><span class="tema-pct">85%</span></div>
+        <div class="tema-item"><span class="tema-nome">Taxa central de mortalidade</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:80%"></div></div><span class="tema-pct">80%</span></div>
+        <div class="tema-item"><span class="tema-nome">Transição demográfica / TFT</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:75%"></div></div><span class="tema-pct">75%</span></div>
+        <div class="tema-item"><span class="tema-nome">Repartição simples / CN%</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:65%"></div></div><span class="tema-pct">65%</span></div>
+      </div>
+
+      <div class="freq-card">
+        <h3>💰 Matemática Financeira</h3>
+        <div class="tema-item"><span class="tema-nome">Anuidades (Price / SAC)</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:100%"></div></div><span class="tema-pct">100%</span></div>
+        <div class="tema-item"><span class="tema-nome">Conversão de taxas</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:95%"></div></div><span class="tema-pct">95%</span></div>
+        <div class="tema-item"><span class="tema-nome">Valor presente e futuro</span><div class="tema-bar-wrap"><div class="tema-pct">90%</span></div>
+        <div class="tema-item"><span class="tema-nome">Perpetuidades diferidas</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:75%"></div></div><span class="tema-pct">75%</span></div>
+        <div class="tema-item"><span class="tema-nome">Força de juros / Fisher</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:65%"></div></div><span class="tema-pct">65%</span></div>
+        <div class="tema-item"><span class="tema-nome">VPL e TIR</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:60%"></div></div><span class="tema-pct">60%</span></div>
+      </div>
+
+      <div class="freq-card">
+        <h3>📊 Modelagem Estatística</h3>
+        <div class="tema-item"><span class="tema-nome">Análise Discriminante vs PCA</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:100%"></div></div><span class="tema-pct">100%</span></div>
+        <div class="tema-item"><span class="tema-nome">Cadeias de Markov</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:90%"></div></div><span class="tema-pct">90%</span></div>
+        <div class="tema-item"><span class="tema-nome">GLM (logit, Poisson, log)</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:90%"></div></div><span class="tema-pct">90%</span></div>
+        <div class="tema-item"><span class="tema-nome">ARIMA (FAC / FACP)</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:85%"></div></div><span class="tema-pct">85%</span></div>
+        <div class="tema-item"><span class="tema-nome">Processo de Poisson</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:80%"></div></div><span class="tema-pct">80%</span></div>
+        <div class="tema-item"><span class="tema-nome">Regressão linear / resíduos</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:75%"></div></div><span class="tema-pct">75%</span></div>
+      </div>
+
+      <div class="freq-card">
+        <h3>⚖️ Ética e Contabilidade</h3>
+        <div class="tema-item"><span class="tema-nome">Comissão de Ética / penas</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:100%"></div></div><span class="tema-pct">100%</span></div>
+        <div class="tema-item"><span class="tema-nome">Contabilidade de seguradoras</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:85%"></div></div><span class="tema-pct">85%</span></div>
+        <div class="tema-item"><span class="tema-nome">Macroeconomia (PIB, inflação)</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:80%"></div></div><span class="tema-pct">80%</span></div>
+        <div class="tema-item"><span class="tema-nome">CPC 33 / IFRS 17 / CPC 50</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:75%"></div></div><span class="tema-pct">75%</span></div>
+        <div class="tema-item"><span class="tema-nome">Microeconomia (elasticidade)</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:65%"></div></div><span class="tema-pct">65%</span></div>
+        <div class="tema-item"><span class="tema-nome">CAPM / Sharpe / Beta</span><div class="tema-bar-wrap"><div class="tema-bar" style="width:55%"></div></div><span class="tema-pct">55%</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- SIMULADOR ESTILO IBA -->
+  <!-- ═══════════════════════════════════ -->
+  <div id="tela-simulador" class="tela">
+
+    <div class="sim-config">
+      <h2>🎯 Gerar simulado no estilo das provas reais do IBA</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Disciplina</label>
+          <select id="disciplina">
+            <option value="Gestão Atuarial">📋 Gestão Atuarial</option>
+            <option value="Probabilidade e Estatística">🎲 Probabilidade e Estatística</option>
+            <option value="Matemática Atuarial">📐 Matemática Atuarial</option>
+            <option value="Matemática Financeira">💰 Matemática Financeira</option>
+            <option value="Modelagem Estatística">📊 Modelagem Estatística</option>
+            <option value="Contabilidade e Economia">⚖️ Contabilidade e Economia</option>
+            <option value="Profissionalismo e Ética">🤝 Profissionalismo e Ética</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nº de questões</label>
+          <select id="qtd">
+            <option value="5">5 questões</option>
+            <option value="10" selected>10 questões</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ano de referência</label>
+          <select id="ano">
+            <option value="2025">Estilo 2025 (mais recente)</option>
+            <option value="2024">Estilo 2024</option>
+            <option value="misto" selected>Misto (2023-2025)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-gerar" id="btnGerar" onclick="gerarSimulado()">🎯 Gerar simulado no estilo IBA</button>
+      <div class="erro-msg" id="erroMsg"></div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      Gerando questões no estilo IBA...
+    </div>
+
+    <div class="resultado-card" id="resultadoCard">
+      <div style="font-size:2rem;margin-bottom:8px" id="resEmoji">🎉</div>
+      <div style="font-size:1rem;color:#1a4f78;font-weight:bold" id="resTitulo">Simulado concluído!</div>
+      <div class="nota" id="notaFinal"></div>
+      <div style="font-size:0.88rem;color:#666" id="resTexto"></div>
+    </div>
+    <button class="btn-novo" id="btnNovo" onclick="novoSimulado()">🔄 Novo simulado</button>
+    <div class="sim-container" id="simContainer"></div>
+
+  </div>
+</main>
+
+<script>
+  const CHAVE = 'SUA_CHAVE_AQUI'; // ← SUBSTITUA
+
+  function trocarAba(aba, btn) {
+    document.querySelectorAll('.aba').forEach(b => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+    document.getElementById('tela-' + aba).classList.add('ativa');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  let questoes = [], respostas = {}, respondidas = 0;
+
+  async function gerarSimulado() {
+    const disciplina = document.getElementById('disciplina').value;
+    const qtd = document.getElementById('qtd').value;
+    const ano = document.getElementById('ano').value;
+
+    const contexto = {
+      'Gestão Atuarial': 'provisões técnicas (PPNG, PSL, IBNR, PMBaC), prêmio comercial, sinistralidade, resseguro XL e Stop Loss, planos CD/BD/CV, riscos (mercado, crédito, operacional), testes de aderência biométrica, margem de solvência',
+      'Probabilidade e Estatística': 'distribuição de Poisson (calcular P(X=k) com e^-λ), Teorema de Bayes aplicado a seguros, EMV para Pareto e Exponencial, falta de memória da Exponencial, erro tipo I e II, TCL, distribuição Uniforme, Gama, Lognormal',
+      'Matemática Atuarial': 'rendas vitalícias com comutadores Nx/Dx, dote puro, prêmio único, reserva prospectiva e por recursão, taxa central de mortalidade mx, transição demográfica TFT vs TBN, repartição simples, múltiplas vidas',
+      'Matemática Financeira': 'anuidades postecipadas e antecipadas com valores numéricos, financiamento com taxa 0,99% ou similar, Price vs SAC, conversão de taxas mensais para anuais, perpetuidades diferidas, força de juros, Fisher, VPL',
+      'Modelagem Estatística': 'Análise Discriminante vs PCA, cadeias de Markov com matriz de transição numérica, GLM logit com interpretação de OR, ARIMA identificação por FAC/FACP, processo de Poisson, regressão linear resíduos',
+      'Contabilidade e Economia': 'Comissão de Ética IBA e penas, contabilidade de seguradoras (ativo, passivo, PL), CPC 33 planos CD/BD, IFRS 17/CPC 50, macroeconomia PIB e inflação, microeconomia elasticidade, arcabouço fiscal',
+      'Profissionalismo e Ética': 'Comissão de Ética IBA (impedimento, unanimidade, recursos), Código de Ética princípios, penas (advertência, suspensão, desligamento), combate ao exercício ilegal DL 806/69'
+    };
+
+    const estiloAno = ano === '2025' ? 'Prova 2025 (mais técnica, com cálculos numéricos precisos)' :
+                      ano === '2024' ? 'Prova 2024 (mix de conceitual e cálculo)' :
+                      'Mix das provas 2023, 2024 e 2025';
+
+    document.getElementById('btnGerar').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('simContainer').style.display = 'none';
+    document.getElementById('resultadoCard').style.display = 'none';
+    document.getElementById('btnNovo').style.display = 'none';
+    document.getElementById('erroMsg').style.display = 'none';
+    document.getElementById('simContainer').innerHTML = '';
+    questoes = []; respostas = {}; respondidas = 0;
+
+    const prompt = `Você é um elaborador de provas do Exame de Admissão ao IBA (Instituto Brasileiro de Atuária).
+
+Crie ${qtd} questões de múltipla escolha para a disciplina "${disciplina}" no estilo "${estiloAno}".
+
+Temas prioritários desta disciplina: ${contexto[disciplina] || disciplina}
+
+ESTILO OBRIGATÓRIO do IBA:
+- 5 alternativas (A a E)
+- Misture questões conceituais ("é correto afirmar que...") com questões numéricas
+- Nas questões numéricas, inclua dados numéricos precisos e calcule o resultado correto
+- Algumas questões devem ter pegadinhas sutis como nas provas reais
+- Nível médio a difícil, compatível com candidatos a atuário
+- Contexto sempre aplicado a seguros, previdência ou atuária
+
+Responda APENAS com JSON válido, sem texto antes ou depois:
+{
+  "questoes": [
+    {
+      "enunciado": "texto completo da questão",
+      "alternativas": ["A) texto", "B) texto", "C) texto", "D) texto", "E) texto"],
+      "correta": 0,
+      "explicacao": "explicação completa e didática da resposta correta",
+      "padrao_prova": "como este tema apareceu nas provas IBA (ex: caiu em 2024 e 2025)",
+      "dica": "macete para não errar este tipo de questão"
+    }
+  ]
+}`;
+
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': CHAVE,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 4000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error?.message || 'Erro na API');
+      const texto = data.content[0].text;
+      const json = JSON.parse(texto.replace(/```json|```/g, '').trim());
+      questoes = json.questoes;
+      renderSimulado();
+    } catch (e) {
+      document.getElementById('erroMsg').style.display = 'block';
+      document.getElementById('erroMsg').textContent = '❌ Erro: ' + e.message;
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('btnGerar').disabled = false;
+    }
+  }
+
+  function renderSimulado() {
+    const c = document.getElementById('simContainer');
+    c.innerHTML = ''; c.style.display = 'block';
+    const letras = ['A','B','C','D','E'];
+    questoes.forEach((q, i) => {
+      const div = document.createElement('div');
+      div.className = 'questao';
+      div.innerHTML = `
+        <div class="num">Questão ${i+1} de ${questoes.length}</div>
+        <div class="enunciado">${q.enunciado}</div>
+        <div id="alts${i}">
+          ${q.alternativas.map((alt,j) => `
+            <div class="alt" id="alt${i}_${j}" onclick="responder(${i},${j})">
+              <span class="letra">${letras[j]})</span>
+              <span>${alt.replace(/^[A-E]\)\s*/,'')}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="resolucao" id="res${i}">
+          <div class="res-header" id="rh${i}"></div>
+          <div class="res-body">
+            <div id="re${i}"></div>
+            <div class="res-padrao" id="rp${i}"></div>
+            <div class="res-dica" id="rd${i}"></div>
+          </div>
+        </div>
+      `;
+      c.appendChild(div);
+    });
+    if (window.renderMathInElement) setTimeout(() => renderMathInElement(c, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]}), 100);
+  }
+
+  function responder(qi, ai) {
+    if (respostas[qi] !== undefined) return;
+    respostas[qi] = ai; respondidas++;
+    const correta = questoes[qi].correta;
+    const letras = ['A','B','C','D','E'];
+    document.querySelectorAll(`#alts${qi} .alt`).forEach((el,j) => {
+      el.style.pointerEvents = 'none';
+      if (j === correta) el.classList.add('correta');
+      if (j === ai && ai !== correta) el.classList.add('errada');
+    });
+    const res = document.getElementById(`res${qi}`);
+    res.classList.add('show');
+    res.classList.add(ai === correta ? 'acerto' : 'erro');
+    document.getElementById(`rh${qi}`).innerHTML = ai === correta
+      ? `✅ Correto! Resposta: ${letras[correta]})`
+      : `❌ Incorreto. Resposta: ${letras[correta]})`;
+    document.getElementById(`re${qi}`).innerHTML = questoes[qi].explicacao || '';
+    document.getElementById(`rp${qi}`).innerHTML = '<strong>📋 Padrão IBA:</strong> ' + (questoes[qi].padrao_prova || '');
+    document.getElementById(`rd${qi}`).innerHTML = '<strong>💡 Dica:</strong> ' + (questoes[qi].dica || '');
+    if (window.renderMathInElement) setTimeout(() => renderMathInElement(res, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]}), 100);
+    if (respondidas === questoes.length) mostrarResultado();
+  }
+
+  function mostrarResultado() {
+    let acertos = 0;
+    questoes.forEach((q,i) => { if (respostas[i] === q.correta) acertos++; });
+    const pct = Math.round(acertos / questoes.length * 100);
+    const card = document.getElementById('resultadoCard');
+    card.style.display = 'block';
+    document.getElementById('resEmoji').textContent = pct >= 70 ? '🎉' : pct >= 50 ? '💪' : '📚';
+    document.getElementById('resTitulo').textContent = pct >= 70 ? 'Boa performance!' : pct >= 50 ? 'Continue praticando!' : 'Revise este tema!';
+    document.getElementById('notaFinal').textContent = `${acertos}/${questoes.length}`;
+    document.getElementById('resTexto').textContent = `${pct}% de aproveitamento`;
+    card.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('btnNovo').style.display = 'block';
+  }
+
+  function novoSimulado() {
+    document.getElementById('simContainer').style.display = 'none';
+    document.getElementById('resultadoCard').style.display = 'none';
+    document.getElementById('btnNovo').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

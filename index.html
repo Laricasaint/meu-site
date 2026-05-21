@@ -288,6 +288,36 @@
       <div class="bloqueado-overlay"><div class="bloqueado-label">🔒 Acesso restrito</div></div>
     </div>
 
+    <div class="preview-card" id="card-provas">
+      <div class="preview-card-header">
+        <span class="icon">📋</span>
+        <div><h3>Provas Anteriores</h3><small>IBA 2023, 2024 e 2025</small></div>
+      </div>
+      <div class="preview-card-body">
+        <div class="preview-item"><span class="dot"></span>Análise de frequência por tema</div>
+        <div class="preview-item"><span class="dot"></span>Temas que caem todo ano</div>
+        <div class="preview-item"><span class="dot"></span>Simulado no estilo IBA real</div>
+        <div class="preview-item"><span class="dot"></span>Padrão de cada questão</div>
+        <div class="preview-item"><span class="dot"></span>Dicas das pegadinhas clássicas</div>
+      </div>
+      <div class="bloqueado-overlay"><div class="bloqueado-label">🔒 Acesso restrito</div></div>
+    </div>
+
+    <div class="preview-card" id="card-plano">
+      <div class="preview-card-header">
+        <span class="icon">📅</span>
+        <div><h3>Plano de Estudos</h3><small>Cronograma personalizado IBA</small></div>
+      </div>
+      <div class="preview-card-body">
+        <div class="preview-item"><span class="dot"></span>8 semanas até o exame</div>
+        <div class="preview-item"><span class="dot"></span>Timer de 45 min + pausa</div>
+        <div class="preview-item"><span class="dot"></span>Uma tarefa de cada vez</div>
+        <div class="preview-item"><span class="dot"></span>Progresso visível por dia</div>
+        <div class="preview-item"><span class="dot"></span>Integrado com simulados</div>
+      </div>
+      <div class="bloqueado-overlay"><div class="bloqueado-label">🔒 Acesso restrito</div></div>
+    </div>
+
     <div class="preview-card" id="card-formulas">
       <div class="preview-card-header">
         <span class="icon">🔢</span>
@@ -322,7 +352,7 @@
 <script>
   // ══════════════════════════════════
   // COLOQUE SUA SENHA AQUI ↓
-  const SENHA = 'iba2026';
+  const SENHA = 'SUA_SENHA_AQUI';
   // ══════════════════════════════════
 
   const PAGINAS = {
@@ -330,7 +360,9 @@
     'card-simulados':  'simulados.html',
     'card-flashcards': 'flashcards.html',
     'card-mapas':      'mapas.html',
-    'card-formulas':   'formulas.html'
+    'card-formulas':   'formulas.html',
+    'card-plano':      'plano.html',
+    'card-provas':     'provas.html'
   };
 
   function verificarLogin() {
