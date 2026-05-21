@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plano de Estudos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="katexPronto=true"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;}
+    header{background:#2d6a9f;color:white;padding:18px 24px;display:flex;align-items:center;gap:14px;}
+    header a{color:white;text-decoration:none;font-size:1.3rem;}
+    header h1{margin:0;font-size:1.2rem;}
+    main{max-width:750px;margin:0 auto;padding:24px 18px;}
+
+    /* ══ TELAS ══ */
+    .tela{display:none;} .tela.ativa{display:block;}
+
+    /* ══ INÍCIO ══ */
+    .inicio-card{background:white;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:16px;text-align:center;}
+    .inicio-card .emoji{font-size:2.8rem;margin-bottom:12px;}
+    .inicio-card h2{color:#1a4f78;font-size:1.2rem;margin-bottom:8px;}
+    .inicio-card p{color:#666;font-size:0.9rem;line-height:1.7;margin-bottom:20px;}
+    .semanas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+    .semana-btn{background:#f0f6fc;border:2px solid #b0cfe8;border-radius:12px;padding:14px;cursor:pointer;transition:all 0.2s;text-align:left;}
+    .semana-btn:hover{background:#2d6a9f;border-color:#2d6a9f;color:white;}
+    .semana-btn:hover .sb-num,.semana-btn:hover .sb-tema{color:white;}
+    .sb-num{font-size:0.72rem;font-weight:bold;color:#2d6a9f;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;}
+    .sb-tema{font-size:0.88rem;color:#333;font-weight:bold;}
+    .sb-dias{font-size:0.75rem;color:#888;margin-top:4px;}
+    .semana-btn.feita{background:#eef8f2;border-color:#2e9e5b;}
+    .semana-btn.feita .sb-num{color:#2e9e5b;}
+
+    /* ══ SEMANA ══ */
+    .btn-voltar{background:none;border:none;color:#2d6a9f;font-size:0.9rem;cursor:pointer;margin-bottom:18px;display:flex;align-items:center;gap:6px;padding:0;}
+    .semana-header{background:white;border-radius:12px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-bottom:16px;}
+    .semana-header h2{color:#1a4f78;font-size:1rem;margin-bottom:6px;}
+    .prog-bar{background:#e0eaf2;border-radius:20px;height:8px;margin-top:10px;}
+    .prog-fill{background:linear-gradient(90deg,#2d6a9f,#4a90c4);height:8px;border-radius:20px;transition:width 0.5s;}
+    .prog-txt{font-size:0.78rem;color:#888;margin-top:6px;display:flex;justify-content:space-between;}
+
+    .dias-lista{display:flex;flex-direction:column;gap:12px;}
+    .dia-card{background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.07);overflow:hidden;}
+    .dia-header{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.2s;}
+    .dia-header:hover{background:#f8fafc;}
+    .dia-card.hoje .dia-header{background:#f0f6ff;border-left:4px solid #2d6a9f;}
+    .dia-card.concluido .dia-header{background:#f0faf4;border-left:4px solid #2e9e5b;}
+    .dia-label{font-size:0.72rem;font-weight:bold;text-transform:uppercase;color:#2d6a9f;min-width:70px;}
+    .dia-card.concluido .dia-label{color:#2e9e5b;}
+    .dia-resumo{flex:1;font-size:0.88rem;color:#444;}
+    .dia-status{font-size:0.78rem;color:#888;}
+    .dia-seta{color:#bbb;font-size:0.8rem;transition:transform 0.2s;}
+    .dia-header.aberto .dia-seta{transform:rotate(180deg);}
+    .dia-corpo{display:none;border-top:1px solid #f0f0f0;}
+    .dia-corpo.aberto{display:block;}
+
+    /* ══ AULA ══ */
+    .aula-loading{padding:32px;text-align:center;color:#2d6a9f;}
+    .spinner{width:36px;height:36px;border:4px solid #ddeaf5;border-top-color:#2d6a9f;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* Blocos de conteúdo */
+    .bloco{padding:18px 20px;border-bottom:1px solid #f0f0f0;}
+    .bloco:last-child{border-bottom:none;}
+
+    .bloco-titulo{font-size:0.72rem;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+    .bloco-titulo.azul{color:#2d6a9f;}
+    .bloco-titulo.verde{color:#2e9e5b;}
+    .bloco-titulo.laranja{color:#e07b2a;}
+    .bloco-titulo.roxo{color:#7b4fbf;}
+    .bloco-titulo.verm{color:#d94f4f;}
+
+    /* Conceito */
+    .conceito-box{background:#f0f6fc;border-left:4px solid #2d6a9f;border-radius:0 10px 10px 0;padding:14px 16px;font-size:0.92rem;color:#1a4f78;line-height:1.7;margin-bottom:10px;}
+
+    /* Fórmula */
+    .formula-box{background:white;border:2px solid #2d6a9f;border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+    .formula-expr{text-align:center;font-size:1.05rem;padding:8px 0;overflow-x:auto;}
+    .formula-legenda{font-size:0.8rem;color:#555;line-height:1.8;margin-top:8px;border-top:1px solid #eee;padding-top:8px;}
+    .formula-legenda span{color:#2d6a9f;font-weight:bold;}
+
+    /* Destaque */
+    .destaque-box{background:#fff8e8;border-left:4px solid #f5c842;border-radius:0 10px 10px 0;padding:12px 16px;font-size:0.88rem;color:#7a5500;line-height:1.7;margin-bottom:10px;}
+    .destaque-box strong{display:block;margin-bottom:4px;}
+
+    /* Exemplo */
+    .exemplo-box{background:#f5f0ff;border-left:4px solid #7b4fbf;border-radius:0 10px 10px 0;padding:14px 16px;font-size:0.88rem;color:#3d1f6b;line-height:1.7;margin-bottom:10px;}
+    .exemplo-box strong{display:block;margin-bottom:6px;color:#7b4fbf;}
+
+    /* Exercício resolvido */
+    .exercicio-box{background:white;border:1px solid #e0ddf0;border-radius:10px;margin-bottom:12px;overflow:hidden;}
+    .exercicio-enunciado{padding:12px 16px;font-size:0.9rem;color:#222;line-height:1.65;background:#faf9ff;}
+    .exercicio-solucao{padding:12px 16px;border-top:1px solid #ede8ff;}
+    .exercicio-solucao .passo{display:flex;gap:10px;margin-bottom:8px;font-size:0.85rem;line-height:1.6;}
+    .passo-num{background:#7b4fbf;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:bold;flex-shrink:0;margin-top:1px;}
+    .exercicio-resposta{background:#eef8f2;padding:10px 16px;font-size:0.85rem;color:#1a6b3a;font-weight:bold;border-top:1px solid #d4f0e0;}
+
+    /* Simulado ao final */
+    .sim-bloco{padding:18px 20px;}
+    .sim-bloco h3{font-size:0.88rem;color:#1a4f78;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e8f2fb;}
+    .questao-sim{background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid #e0eaf2;}
+    .questao-sim .enunciado{font-size:0.88rem;color:#222;line-height:1.65;margin-bottom:10px;}
+    .questao-sim .num-q{font-size:0.7rem;color:#2d6a9f;font-weight:bold;text-transform:uppercase;margin-bottom:6px;}
+    .alt-sim{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;margin-bottom:6px;cursor:pointer;border:1px solid #e0eaf2;font-size:0.85rem;line-height:1.5;transition:all 0.15s;background:white;}
+    .alt-sim:hover{background:#f0f6fc;border-color:#b0cfe8;}
+    .alt-sim.correta{border-color:#2e9e5b;background:#eef8f2;color:#1a6b3a;}
+    .alt-sim.errada{border-color:#d94f4f;background:#fdf0f0;color:#8b2020;}
+    .letra-sim{font-weight:bold;min-width:18px;color:#2d6a9f;font-size:0.8rem;}
+    .alt-sim.correta .letra-sim{color:#1a6b3a;}
+    .alt-sim.errada .letra-sim{color:#8b2020;}
+    .feedback-sim{font-size:0.82rem;padding:8px 12px;border-radius:8px;margin-top:6px;display:none;line-height:1.6;}
+    .feedback-sim.show{display:block;}
+    .feedback-sim.acerto{background:#eef8f2;color:#1a6b3a;}
+    .feedback-sim.erro{background:#fdf0f0;color:#8b2020;}
+
+    .btn-concluir{width:100%;padding:13px;background:#2e9e5b;color:white;border:none;border-radius:10px;font-size:0.95rem;cursor:pointer;margin-top:8px;font-weight:bold;}
+    .btn-concluir:hover{background:#1a7a42;}
+    .btn-concluir:disabled{background:#90c4a8;cursor:not-allowed;}
+
+    .btn-gerar-aula{width:100%;padding:13px;background:#2d6a9f;color:white;border:none;border-radius:10px;font-size:0.95rem;cursor:pointer;transition:background 0.2s;}
+    .btn-gerar-aula:hover{background:#1f5080;}
+
+    @media(max-width:500px){.semanas-grid{grid-template-columns:1fr 1fr;}}
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" id="link-voltar">← Voltar</a>
+  <h1 id="header-titulo">📅 Plano de Estudos</h1>
+</header>
+
+<main>
+
+  <!-- INÍCIO -->
+  <div id="tela-inicio" class="tela ativa">
+    <div class="inicio-card">
+      <div class="emoji">🎯</div>
+      <h2>Olá, Larisa! Por onde vamos hoje?</h2>
+      <p>Cada aula já tem o conteúdo completo, exercícios resolvidos e simulado.<br>É só abrir e estudar. 💙</p>
+    </div>
+    <div class="semanas-grid" id="semanas-grid"></div>
+  </div>
+
+  <!-- SEMANA -->
+  <div id="tela-semana" class="tela">
+    <button class="btn-voltar" onclick="irInicio()">← Voltar ao plano</button>
+    <div class="semana-header">
+      <h2 id="semana-titulo-h"></h2>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill-s" style="width:0%"></div></div>
+      <div class="prog-txt"><span id="prog-txt-s">0 de 0 aulas concluídas</span><span id="prog-pct-s">0%</span></div>
+    </div>
+    <div class="dias-lista" id="dias-lista"></div>
+  </div>
+
+</main>
+
+<script>
+const CHAVE = 'SUA_CHAVE_AQUI'; // ← SUBSTITUA
+let katexPronto = false;
+
+// ══════════════════════════════════════════════
+// PLANO DE ESTUDOS
+// ══════════════════════════════════════════════
+const semanas = [
+  { titulo: "Semana 1 — Tábua de Mortalidade", dias: [
+    { label:"Seg", resumo:"lx, dx, qx e px", materia:"Matemática Atuarial", tema:"tabua de mortalidade: lx dx qx px", assunto:"Funções básicas da tábua de mortalidade: lx (sobreviventes), dx (óbitos), qx (probabilidade de morte), px (probabilidade de sobrevivência). Inclua: definição, fórmulas, relações entre elas, exemplo numérico com tábua simples, e exercícios." },
+    { label:"Ter", resumo:"npx, nqx e m|nqx", materia:"Matemática Atuarial", tema:"probabilidades npx nqx diferidas", assunto:"Probabilidades de sobrevivência e morte em n anos: npx=lx+n/lx, nqx=1-npx, probabilidade diferida m|nqx. Inclua exemplos e relações." },
+    { label:"Qua", resumo:"mx, μx e força de mortalidade", materia:"Matemática Atuarial", tema:"taxa central mortalidade forca mortalidade", assunto:"Taxa central de mortalidade mx=dx/Lx, força de mortalidade μx, hipótese exponencial. Como diferem de qx." },
+    { label:"Qui", resumo:"Revisão + Simulado", materia:"Matemática Atuarial", tema:"tabua de mortalidade completa revisao", assunto:"Revisão de toda a tábua de mortalidade. Foco nas derivações: como calcular lx+1 a partir de lx e qx, e vice-versa. Pegadinhas comuns do IBA." },
+    { label:"Sex", resumo:"Flashcards tábua (descanso leve)", materia:"Matemática Atuarial", tema:"tabua mortalidade revisao rapida", assunto:"Revisão rápida das fórmulas da tábua. Foco em memorização. Exercícios curtos. Sem conteúdo novo." },
+  ]},
+  { titulo: "Semana 2 — Comutadores e Rendas", dias: [
+    { label:"Seg", resumo:"Dx e Nx — comutadores base", materia:"Matemática Atuarial", tema:"comutadores Dx Nx rendas vitalícias", assunto:"Comutadores Dx=lx·v^x e Nx=soma dos D. Como usar para calcular rendas vitalícias antecipadas ä_x=Nx/Dx e postecipadas a_x=Nx+1/Dx." },
+    { label:"Ter", resumo:"Rendas temporárias e diferidas", materia:"Matemática Atuarial", tema:"rendas temporarias diferidas comutadores", assunto:"Renda temporária antecipada ä_{x:n|}=(Nx-Nx+n)/Dx, diferida k|ä_x=Nx+k/Dx, temporária diferida. Exemplos numéricos com tabela." },
+    { label:"Qua", resumo:"Cx, Mx e identidade fundamental", materia:"Matemática Atuarial", tema:"comutadores Cx Mx identidade rendas", assunto:"Comutadores Cx=dx·v^(x+1) e Mx=soma dos C. Identidade fundamental: ä_{x:n|} + nEx·ä_{x+n} = ä_x. Por que essa identidade é importante." },
+    { label:"Qui", resumo:"Simulado de rendas", materia:"Matemática Atuarial", tema:"rendas vitalícias temporárias diferidas simulado", assunto:"Exercícios do estilo IBA com rendas vitalícias usando comutadores. Questões com tabela fornecida." },
+    { label:"Sex", resumo:"Revisão leve", materia:"Matemática Atuarial", tema:"comutadores rendas revisao", assunto:"Revisão rápida de comutadores e rendas. Foco nos pontos que mais caem nas provas IBA." },
+  ]},
+  { titulo: "Semana 3 — Seguros de Vida", dias: [
+    { label:"Seg", resumo:"Ax, dote puro e dote misto", materia:"Matemática Atuarial", tema:"seguros vida Ax dote puro misto", assunto:"Seguro vida inteira Ax=Mx/Dx, temporário A¹_{x:n|}=(Mx-Mx+n)/Dx, dote puro nEx=Dx+n/Dx, dote misto=A¹+nEx. Exemplos numéricos." },
+    { label:"Ter", resumo:"Relação A e ä — prêmio puro", materia:"Matemática Atuarial", tema:"relacao seguro renda premio puro principio equivalencia", assunto:"Ax=1-d·ä_x onde d=i/(1+i). Prêmio puro P=Capital·Ax/ä_{x:n|}. Princípio da equivalência atuarial: VP(prêmios)=VP(benefícios)." },
+    { label:"Qua", resumo:"Reserva prospectiva e recursão", materia:"Matemática Atuarial", tema:"reserva prospectiva retrospectiva recursao", assunto:"Reserva prospectiva tV=VP(benef.futuros)-VP(prêm.futuros), retrospectiva, recursão (tV+P)(1+i)=qx+t·C+px+t·t+1V. Diferença entre os métodos." },
+    { label:"Qui", resumo:"Simulado seguros e reservas", materia:"Matemática Atuarial", tema:"seguros vida reservas simulado IBA", assunto:"Questões estilo IBA sobre seguros de vida e reservas. Inclui questões com valores numéricos como nas provas reais." },
+    { label:"Sex", resumo:"Revisão leve", materia:"Matemática Atuarial", tema:"seguros reservas revisao", assunto:"Revisão rápida de seguros e reservas. Foco nas pegadinhas do IBA." },
+  ]},
+  { titulo: "Semana 4 — Probabilidade Básica", dias: [
+    { label:"Seg", resumo:"Probabilidade condicional e Bayes", materia:"Probabilidade", tema:"probabilidade condicional independencia Bayes seguros", assunto:"P(A|B)=P(A∩B)/P(B), independência, Bayes aplicado a seguros (motoristas bons/ruins, sinistros). Exemplos do IBA." },
+    { label:"Ter", resumo:"Poisson — o mais cobrado", materia:"Probabilidade", tema:"distribuição Poisson seguros media variancia calculo", assunto:"Poisson: P(X=k)=e^-λ·λ^k/k!, média=variância=λ. Cálculos com e^-1≈0,368 e e^-2≈0,135. Questões clássicas do IBA com Poisson." },
+    { label:"Qua", resumo:"Exponencial e falta de memória", materia:"Probabilidade", tema:"distribuição exponencial falta memoria seguros", assunto:"Exponencial: E=1/λ, P(X>t)=e^-λt, falta de memória P(X>s+t|X>s)=P(X>t). Mínimo de exponenciais independentes." },
+    { label:"Qui", resumo:"Binomial Negativa e misturas", materia:"Probabilidade", tema:"binomial negativa Poisson Gama heterogeneidade", assunto:"Poisson(λ) com λ~Gama = Binomial Negativa. Var>média (superdispersão). Quando usar cada distribuição em seguros." },
+    { label:"Sex", resumo:"Simulado de probabilidade", materia:"Probabilidade", tema:"probabilidade distribuições simulado IBA", assunto:"Questões estilo IBA de probabilidade. Foco em Poisson, Bayes e Exponencial — os 3 que mais caem." },
+  ]},
+  { titulo: "Semana 5 — Probabilidade Avançada", dias: [
+    { label:"Seg", resumo:"Estimação: EMV", materia:"Probabilidade", tema:"estimador maxima verossimilhanca Poisson Exponencial Pareto", assunto:"EMV para Poisson (λ̂=x̄), Exponencial (λ̂=1/x̄), Pareto (α̂=n/Σln(xi/x0)), Uniforme (θ̂=X(n)). Como o IBA cobra." },
+    { label:"Ter", resumo:"Intervalos de confiança", materia:"Probabilidade", tema:"intervalos confiança z t teste hipotese", assunto:"IC para μ com σ conhecida (z) e desconhecida (t). z=1,96 (95%), z=2,576 (99%), z=1,645 (90%). Erro tipo I e II, poder do teste." },
+    { label:"Qua", resumo:"Distribuições contínuas (Normal, Gama, Pareto)", materia:"Probabilidade", tema:"Normal Gama Pareto Lognormal cauda pesada", assunto:"Normal(μ,σ²), Gama(α,β), Pareto (cauda pesada, sinistros catastróficos), Lognormal. Quando usar cada uma em seguros." },
+    { label:"Qui", resumo:"Teoria do risco coletivo", materia:"Teoria do Risco", tema:"modelo coletivo E[S] Var[S] frequencia severidade", assunto:"S=Y1+...+YN, E[S]=E[N]·E[Y], Var[S]=E[N]·Var[Y]+Var[N]·(E[Y])². FGM de S. Aplicações práticas." },
+    { label:"Sex", resumo:"Simulado avançado", materia:"Probabilidade", tema:"estimação IC teoria risco simulado IBA", assunto:"Questões difíceis estilo IBA. Foco em EMV, IC e modelo coletivo." },
+  ]},
+  { titulo: "Semana 6 — Matemática Financeira", dias: [
+    { label:"Seg", resumo:"Juros compostos e taxas", materia:"Matemática Financeira", tema:"juros compostos conversão taxas nominal efetiva", assunto:"VF=VP·(1+i)^n, conversão mensal→anual: ia=(1+im)^12-1. DIFERENÇA nominal vs efetiva. Fisher. (1,005)^12≈1,0617." },
+    { label:"Ter", resumo:"Anuidades pós e antecipadas", materia:"Matemática Financeira", tema:"anuidades postecipadas antecipadas perpetuidades", assunto:"VP=PMT·[1-(1+i)^-n]/i (post). Antecipada=×(1+i). Perpetuidade=PMT/i. 'No ato'=antecipada. '1 mês após'=postecipada. Exemplos numéricos do IBA." },
+    { label:"Qua", resumo:"Price vs SAC", materia:"Matemática Financeira", tema:"amortização Price SAC diferenças", assunto:"Price: parcela CONSTANTE, amortização crescente, juros totais maiores. SAC: parcela DECRESCENTE, amortização=VP/n, saldo decai linearmente. Tabelas comparativas." },
+    { label:"Qui", resumo:"VPL, TIR e títulos", materia:"Matemática Financeira", tema:"VPL TIR titulo prefixado duration", assunto:"VPL=soma[FC/(1+i)^t]-I0. TIR: VPL=0. Título prefixado: preço=C/(1+i)^n. Taxa cai→preço sobe." },
+    { label:"Sex", resumo:"Simulado financeiro", materia:"Matemática Financeira", tema:"matemática financeira simulado IBA completo", assunto:"Questões numéricas estilo IBA de financeira. Foco em conversão de taxas, anuidades, Price e SAC." },
+  ]},
+  { titulo: "Semana 7 — Modelagem e Gestão", dias: [
+    { label:"Seg", resumo:"GLM: logit e Poisson", materia:"Estatística", tema:"GLM logit Poisson interpretação OR rate ratio", assunto:"g(μ)=η=Xβ. Logit: μ=e^η/(1+e^η). Poisson: g=log, μ=e^η. OR=e^β. Rate Ratio=e^β. Como o IBA interpreta coeficientes." },
+    { label:"Ter", resumo:"ARIMA e Cadeias de Markov", materia:"Estatística", tema:"ARIMA FAC FACP Markov distribuição estacionaria", assunto:"ARIMA(p,d,q). FAC identifica MA(q), FACP identifica AR(p). Markov: P(n)=P^n, distribuição estacionária π=πP." },
+    { label:"Qua", resumo:"Provisões técnicas — o mais cobrado", materia:"Gestão Atuarial", tema:"provisões PPNG PSL IBNR PMBaC gestão atuarial", assunto:"PPNG (futuros), PSL (ocorridos avisados), IBNR (ocorridos não avisados), PMBaC (previdência). Fórmula sinistralidade Sin=(1-Cd)/(1+Cs). Prêmio comercial." },
+    { label:"Qui", resumo:"Resseguro e riscos", materia:"Gestão Atuarial", tema:"resseguro XL Stop Loss proporcional riscos", assunto:"XL: paga max(0,S-Retenção). Stop Loss: sobre agregado. Proporcional: q% cedente. Riscos: mercado, crédito, operacional, legal. Selecão adversa vs risco moral." },
+    { label:"Sex", resumo:"Simulado gestão + modelagem", materia:"Gestão Atuarial", tema:"gestão atuarial modelagem simulado IBA", assunto:"Questões estilo IBA de Gestão e Modelagem. Foco em provisões, GLM e Markov." },
+  ]},
+  { titulo: "Semana 8 — Revisão Geral e Simulado Final", dias: [
+    { label:"Seg", resumo:"Revisão Mat. Atuarial completa", materia:"Matemática Atuarial", tema:"matematica atuarial revisao completa tábua rendas seguros reservas", assunto:"Revisão completa de Mat. Atuarial. Tudo que cai no IBA: tábua, comutadores, rendas, seguros, reservas, múltiplas vidas, transição demográfica." },
+    { label:"Ter", resumo:"Revisão Probabilidade + Risco", materia:"Probabilidade", tema:"probabilidade teoria risco revisao completa IBA", assunto:"Revisão completa de Probabilidade e Teoria do Risco. Foco nos temas mais cobrados: Poisson, Bayes, Exponencial, modelo coletivo." },
+    { label:"Qua", resumo:"Revisão Financeira + Modelagem", materia:"Matemática Financeira", tema:"financeira modelagem revisao completa IBA", assunto:"Revisão de Financeira (taxas, anuidades, Price/SAC) e Modelagem (GLM, ARIMA, Markov). Pegadinhas clássicas." },
+    { label:"Qui", resumo:"Simulado geral completo", materia:"Matemática Atuarial", tema:"simulado completo todas matérias IBA revisao final", assunto:"Simulado final cobrindo todas as matérias. Questões do nível real da prova IBA. Foco nos temas que mais caem." },
+    { label:"Sex", resumo:"Descanso + revisão leve", materia:"Matemática Atuarial", tema:"revisao final leve antes prova", assunto:"Revisão leve dos pontos mais importantes. Sem conteúdo novo. Foco em confiança e memorização de fórmulas-chave." },
+  ]},
+];
+
+// ══════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════
+function chave(s,d){return `aula_${s}_${d}`;}
+function concluidos(){return JSON.parse(localStorage.getItem('aulas_concluidas')||'{}');}
+function marcarConcluida(s,d){const c=concluidos();c[chave(s,d)]=true;localStorage.setItem('aulas_concluidas',JSON.stringify(c));renderSemana(s);}
+
+// ══════════════════════════════════════════════
+// RENDER INÍCIO
+// ══════════════════════════════════════════════
+function renderInicio(){
+  const c=concluidos();
+  const grid=document.getElementById('semanas-grid');
+  grid.innerHTML='';
+  semanas.forEach((s,si)=>{
+    const total=s.dias.length;
+    const feitos=s.dias.filter((_,di)=>c[chave(si,di)]).length;
+    const feita=feitos===total;
+    const btn=document.createElement('div');
+    btn.className='semana-btn'+(feita?' feita':'');
+    btn.innerHTML=`<div class="sb-num">Semana ${si+1} ${feita?'✅':''}</div>
+      <div class="sb-tema">${s.titulo.split('—')[1]?.trim()||s.titulo}</div>
+      <div class="sb-dias">${feitos}/${total} aulas concluídas</div>`;
+    btn.onclick=()=>abrirSemana(si);
+    grid.appendChild(btn);
+  });
+}
+
+// ══════════════════════════════════════════════
+// RENDER SEMANA
+// ══════════════════════════════════════════════
+let semanaAtual=-1;
+function abrirSemana(si){
+  semanaAtual=si;
+  document.getElementById('header-titulo').textContent='📅 '+semanas[si].titulo;
+  document.getElementById('link-voltar').onclick=(e)=>{e.preventDefault();irInicio();};
+  renderSemana(si);
+  irTela('tela-semana');
+}
+
+function renderSemana(si){
+  const s=semanas[si];
+  const c=concluidos();
+  document.getElementById('semana-titulo-h').textContent=s.titulo;
+  const total=s.dias.length;
+  const feitos=s.dias.filter((_,di)=>c[chave(si,di)]).length;
+  const pct=Math.round(feitos/total*100);
+  document.getElementById('prog-fill-s').style.width=pct+'%';
+  document.getElementById('prog-txt-s').textContent=`${feitos} de ${total} aulas concluídas`;
+  document.getElementById('prog-pct-s').textContent=pct+'%';
+
+  const lista=document.getElementById('dias-lista');
+  lista.innerHTML='';
+  s.dias.forEach((dia,di)=>{
+    const feita=!!c[chave(si,di)];
+    const div=document.createElement('div');
+    div.className='dia-card'+(feita?' concluido':'');
+    div.id=`dia-${si}-${di}`;
+    const header=document.createElement('div');
+    header.className='dia-header';
+    header.innerHTML=`<span class="dia-label">${feita?'✅':''} ${dia.label}</span>
+      <span class="dia-resumo">${dia.resumo}</span>
+      <span class="dia-seta">▼</span>`;
+    const corpo=document.createElement('div');
+    corpo.className='dia-corpo';
+    corpo.id=`corpo-${si}-${di}`;
+    corpo.innerHTML=`<div class="aula-loading" id="loading-${si}-${di}">
+      <button class="btn-gerar-aula" onclick="gerarAula(${si},${di})">
+        📖 Abrir aula: ${dia.resumo}
+      </button>
+    </div>`;
+    header.onclick=()=>{
+      header.classList.toggle('aberto');
+      corpo.classList.toggle('aberto');
+    };
+    div.appendChild(header);
+    div.appendChild(corpo);
+    lista.appendChild(div);
+  });
+}
+
+// ══════════════════════════════════════════════
+// GERAR AULA COM IA
+// ══════════════════════════════════════════════
+const aulaCache={};
+
+async function gerarAula(si,di){
+  const ck=chave(si,di);
+  if(aulaCache[ck]){renderAula(si,di,aulaCache[ck]);return;}
+
+  const dia=semanas[si].dias[di];
+  const loadDiv=document.getElementById(`loading-${si}-${di}`);
+  loadDiv.innerHTML=`<div class="spinner"></div><p style="color:#2d6a9f;font-size:0.88rem">Preparando sua aula sobre <strong>${dia.resumo}</strong>...<br><small>Isso leva alguns segundos 🧠</small></p>`;
+
+  const prompt=`Você é um professor de Ciências Atuariais criando material de estudo para uma aluna com TDAH e autismo que está se preparando para o Exame IBA.
+
+Tema da aula: ${dia.assunto}
+Matéria: ${dia.materia}
+
+REGRAS OBRIGATÓRIAS para o material:
+1. Linguagem simples, direta e amigável
+2. UMA ideia por parágrafo — sem blocos longos de texto
+3. Fórmulas SEMPRE com legenda explicando cada letra
+4. SEMPRE um exemplo numérico concreto antes de qualquer abstração
+5. Destaques visuais para pontos importantes
+6. No final: 2 exercícios resolvidos passo a passo + 3 questões de simulado estilo IBA
+
+Responda APENAS com JSON válido:
+{
+  "titulo": "título curto da aula",
+  "blocos": [
+    {
+      "tipo": "conceito",
+      "titulo": "O que é...",
+      "texto": "explicação simples, máximo 3 frases curtas"
+    },
+    {
+      "tipo": "formula",
+      "titulo": "Fórmula: ...",
+      "expressao": "fórmula em LaTeX inline (use $ $)",
+      "legenda": ["letra: significado", "letra: significado"]
+    },
+    {
+      "tipo": "destaque",
+      "titulo": "⚠️ Atenção:",
+      "texto": "ponto importante ou pegadinha"
+    },
+    {
+      "tipo": "exemplo",
+      "titulo": "Exemplo resolvido:",
+      "texto": "problema + resolução passo a passo"
+    }
+  ],
+  "exercicios": [
+    {
+      "enunciado": "enunciado do exercício com dados numéricos",
+      "passos": ["Passo 1: ...", "Passo 2: ...", "Passo 3: ..."],
+      "resposta": "Resposta final: ..."
+    }
+  ],
+  "simulado": [
+    {
+      "enunciado": "questão estilo IBA",
+      "alternativas": ["A) ...", "B) ...", "C) ...", "D) ...", "E) ..."],
+      "correta": 0,
+      "explicacao": "por que essa é a correta"
+    }
+  ]
+}
+
+Use no máximo 6 blocos de conteúdo, 2 exercícios e 3 questões de simulado.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':CHAVE,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    if(!resp.ok)throw new Error(data.error?.message||'Erro na API');
+    const txt=data.content[0].text;
+    const aula=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    aulaCache[ck]=aula;
+    renderAula(si,di,aula);
+  }catch(e){
+    loadDiv.innerHTML=`<div style="padding:20px;color:#d94f4f;font-size:0.88rem">❌ Erro ao gerar aula: ${e.message}<br><button onclick="gerarAula(${si},${di})" style="margin-top:10px;padding:8px 16px;background:#2d6a9f;color:white;border:none;border-radius:8px;cursor:pointer">Tentar novamente</button></div>`;
+  }
+}
+
+function renderAula(si,di,aula){
+  const corpo=document.getElementById(`corpo-${si}-${di}`);
+  const c=concluidos();
+  const feita=!!c[chave(si,di)];
+  let html='';
+
+  // Título
+  html+=`<div class="bloco"><div class="bloco-titulo azul">📖 ${aula.titulo||semanas[si].dias[di].resumo}</div></div>`;
+
+  // Blocos de conteúdo
+  (aula.blocos||[]).forEach(b=>{
+    if(b.tipo==='conceito'){
+      html+=`<div class="bloco"><div class="bloco-titulo azul">💡 ${b.titulo||'Conceito'}</div><div class="conceito-box">${b.texto||''}</div></div>`;
+    } else if(b.tipo==='formula'){
+      const leg=(b.legenda||[]).map(l=>`<div>• <span>${l.split(':')[0]}</span>:${l.split(':').slice(1).join(':')}</div>`).join('');
+      html+=`<div class="bloco"><div class="bloco-titulo verde">📐 ${b.titulo||'Fórmula'}</div>
+        <div class="formula-box">
+          <div class="formula-expr">${b.expressao||''}</div>
+          ${leg?`<div class="formula-legenda">${leg}</div>`:''}
+        </div></div>`;
+    } else if(b.tipo==='destaque'){
+      html+=`<div class="bloco"><div class="destaque-box"><strong>${b.titulo||'⚠️ Atenção'}</strong>${b.texto||''}</div></div>`;
+    } else if(b.tipo==='exemplo'){
+      html+=`<div class="bloco"><div class="bloco-titulo roxo">🔢 ${b.titulo||'Exemplo'}</div><div class="exemplo-box"><strong>${b.titulo||''}</strong>${b.texto||''}</div></div>`;
+    }
+  });
+
+  // Exercícios resolvidos
+  if((aula.exercicios||[]).length>0){
+    html+=`<div class="bloco"><div class="bloco-titulo laranja">✏️ Exercícios Resolvidos</div>`;
+    aula.exercicios.forEach((ex,i)=>{
+      const passos=(ex.passos||[]).map((p,j)=>`<div class="passo"><div class="passo-num">${j+1}</div><div>${p}</div></div>`).join('');
+      html+=`<div class="exercicio-box">
+        <div class="exercicio-enunciado"><strong>Exercício ${i+1}:</strong> ${ex.enunciado||''}</div>
+        <div class="exercicio-solucao">${passos}</div>
+        <div class="exercicio-resposta">✅ ${ex.resposta||''}</div>
+      </div>`;
+    });
+    html+='</div>';
+  }
+
+  // Simulado
+  if((aula.simulado||[]).length>0){
+    html+=`<div class="sim-bloco"><h3>🎯 Mini-simulado desta aula</h3>`;
+    aula.simulado.forEach((q,qi)=>{
+      const letras=['A','B','C','D','E'];
+      const alts=(q.alternativas||[]).map((alt,ai)=>`
+        <div class="alt-sim" id="asim-${si}-${di}-${qi}-${ai}" onclick="responderSim(${si},${di},${qi},${ai},${q.correta})">
+          <span class="letra-sim">${letras[ai]})</span>
+          <span>${alt.replace(/^[A-E]\)\s*/,'')}</span>
+        </div>`).join('');
+      html+=`<div class="questao-sim">
+        <div class="num-q">Questão ${qi+1}</div>
+        <div class="enunciado">${q.enunciado||''}</div>
+        <div id="alts-sim-${si}-${di}-${qi}">${alts}</div>
+        <div class="feedback-sim" id="fb-${si}-${di}-${qi}"></div>
+      </div>`;
+    });
+    html+=`<button class="btn-concluir" id="btn-concluir-${si}-${di}" onclick="concluirAula(${si},${di})" ${feita?'':'disabled'}>
+      ${feita?'✅ Aula concluída':'Responda o simulado para concluir'}
+    </button></div>`;
+  } else {
+    html+=`<div style="padding:16px 20px"><button class="btn-concluir" onclick="concluirAula(${si},${di})">✅ Marcar aula como concluída</button></div>`;
+  }
+
+  corpo.innerHTML=html;
+
+  // Atualiza botão se já concluída
+  if(feita){
+    const btn=document.getElementById(`btn-concluir-${si}-${di}`);
+    if(btn){btn.textContent='✅ Aula já concluída';btn.disabled=false;}
+  }
+
+  // Renderiza KaTeX
+  setTimeout(()=>{
+    if(window.renderMathInElement){
+      renderMathInElement(corpo,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+    }
+  },150);
+}
+
+// Rastreia respostas do simulado por aula
+const respostasSim={};
+function responderSim(si,di,qi,ai,correta){
+  const k=`${si}_${di}_${qi}`;
+  if(respostasSim[k]!==undefined)return;
+  respostasSim[k]=ai;
+  const letras=['A','B','C','D','E'];
+  document.querySelectorAll(`#alts-sim-${si}-${di}-${qi} .alt-sim`).forEach((el,j)=>{
+    el.style.pointerEvents='none';
+    if(j===correta)el.classList.add('correta');
+    if(j===ai&&ai!==correta)el.classList.add('errada');
+  });
+  const fb=document.getElementById(`fb-${si}-${di}-${qi}`);
+  fb.classList.add('show');
+  fb.classList.add(ai===correta?'acerto':'erro');
+
+  // Busca explicação da questão
+  const aula=aulaCache[chave(si,di)];
+  const expl=aula?.simulado?.[qi]?.explicacao||'';
+  fb.innerHTML=(ai===correta?`✅ Correto! ${expl}`:`❌ Incorreto. Resposta: ${letras[correta]}. ${expl}`);
+
+  // Verifica se respondeu todas — libera botão concluir
+  const totalQ=aula?.simulado?.length||0;
+  const respondidas=Object.keys(respostasSim).filter(k2=>k2.startsWith(`${si}_${di}_`)).length;
+  if(respondidas>=totalQ){
+    const btn=document.getElementById(`btn-concluir-${si}-${di}`);
+    if(btn){btn.disabled=false;btn.textContent='✅ Marcar aula como concluída';}
+  }
+}
+
+function concluirAula(si,di){
+  marcarConcluida(si,di);
+  const btn=document.getElementById(`btn-concluir-${si}-${di}`);
+  if(btn){btn.textContent='✅ Aula concluída!';btn.style.background='#1a7a42';}
+  const card=document.getElementById(`dia-${si}-${di}`);
+  if(card){card.className='dia-card concluido';}
+}
+
+function irInicio(){
+  document.getElementById('header-titulo').textContent='📅 Plano de Estudos';
+  document.getElementById('link-voltar').href='index.html';
+  document.getElementById('link-voltar').onclick=null;
+  renderInicio();
+  irTela('tela-inicio');
+}
+function irTela(id){
+  document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Init
+renderInicio();
+</script>
+</body>
+</html>
