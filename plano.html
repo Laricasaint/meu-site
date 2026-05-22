@@ -376,7 +376,7 @@ Responda APENAS com JSON válido:
 Use no máximo 6 blocos de conteúdo, 2 exercícios e 3 questões de simulado.`;
 
   try{
-    const resp=await fetch('/.netlify/functions/proxy',{
+    const resp=await fetch('https://anthropic-proxy.larissacds.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},
       body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,messages:[{role:'user',content:prompt}]})
