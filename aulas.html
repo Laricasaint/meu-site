@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aulas em Vídeo/Áudio</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;transition:background 0.3s,color 0.3s;}
+    body.dark{background:#1a1a2e;color:#e0e0e0;}
+
+    header{background:#2d6a9f;color:white;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;}
+    .header-left{display:flex;align-items:center;gap:14px;}
+    header a{color:white;text-decoration:none;font-size:1.3rem;}
+    header h1{margin:0;font-size:1.2rem;}
+    .btn-dark{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:0.82rem;}
+
+    main{max-width:900px;margin:0 auto;padding:24px 18px;}
+
+    /* TELAS */
+    .tela{display:none;} .tela.ativa{display:block;}
+
+    /* FILTROS */
+    .filtros{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+    .filtro-btn{padding:8px 18px;border-radius:20px;border:2px solid #b0cfe8;background:white;color:#2d6a9f;font-size:0.88rem;cursor:pointer;transition:all 0.2s;}
+    .filtro-btn:hover,.filtro-btn.ativo{background:#2d6a9f;color:white;border-color:#2d6a9f;}
+    body.dark .filtro-btn{background:#2a2a4a;border-color:#4a6a9f;color:#9ab8d8;}
+    body.dark .filtro-btn.ativo{background:#2d6a9f;color:white;}
+
+    /* GRADE DE AULAS */
+    .aulas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+    .aula-card{background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.08);cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
+    .aula-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.12);}
+    body.dark .aula-card{background:#2a2a4a;}
+    .aula-thumb{background:linear-gradient(135deg,#1a4f78,#2d6a9f);height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;}
+    .aula-thumb .duracao{position:absolute;bottom:8px;right:10px;background:rgba(0,0,0,0.6);color:white;font-size:0.72rem;padding:2px 8px;border-radius:10px;}
+    .aula-thumb .tipo-badge{position:absolute;top:8px;left:10px;font-size:0.7rem;padding:3px 10px;border-radius:10px;font-weight:bold;}
+    .badge-ia{background:#7b4fbf;color:white;}
+    .badge-pdf{background:#e07b2a;color:white;}
+    .badge-audio{background:#2e9e5b;color:white;}
+    .aula-info{padding:14px;}
+    .aula-materia{font-size:0.72rem;font-weight:bold;text-transform:uppercase;letter-spacing:0.06em;color:#2d6a9f;margin-bottom:4px;}
+    .aula-titulo{font-size:0.92rem;font-weight:bold;color:#1a4f78;margin-bottom:6px;line-height:1.4;}
+    body.dark .aula-titulo{color:#9ab8d8;}
+    .aula-desc{font-size:0.8rem;color:#666;line-height:1.5;}
+    body.dark .aula-desc{color:#aaa;}
+
+    /* PLAYER */
+    .btn-voltar{background:none;border:none;color:#2d6a9f;font-size:0.9rem;cursor:pointer;margin-bottom:18px;display:flex;align-items:center;gap:6px;padding:0;}
+    body.dark .btn-voltar{color:#9ab8d8;}
+
+    .player-card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);margin-bottom:20px;}
+    body.dark .player-card{background:#2a2a4a;}
+
+    .player-topo{background:linear-gradient(135deg,#1a4f78,#2d6a9f);padding:24px;color:white;display:flex;align-items:flex-start;gap:16px;}
+    .player-emoji{font-size:2.5rem;flex-shrink:0;}
+    .player-meta{flex:1;}
+    .player-materia{font-size:0.72rem;font-weight:bold;text-transform:uppercase;letter-spacing:0.06em;opacity:0.8;margin-bottom:4px;}
+    .player-titulo{font-size:1.1rem;font-weight:bold;margin-bottom:4px;}
+    .player-desc{font-size:0.85rem;opacity:0.85;line-height:1.5;}
+
+    /* TELA DA AULA NARRADA */
+    .narrador{padding:24px;}
+    .slide-container{min-height:200px;margin-bottom:20px;}
+    .slide-bloco{animation:fadeIn 0.5s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .slide-texto{font-size:1rem;line-height:1.8;color:#222;margin-bottom:12px;}
+    body.dark .slide-texto{color:#ddd;}
+    .slide-formula{background:#f0f6fc;border:2px solid #2d6a9f;border-radius:10px;padding:14px;text-align:center;font-size:1.1rem;margin-bottom:12px;overflow-x:auto;}
+    body.dark .slide-formula{background:#1a2a4a;border-color:#4a6a9f;}
+    .slide-destaque{background:#fff8e8;border-left:4px solid #f5c842;border-radius:0 10px 10px 0;padding:12px 16px;font-size:0.9rem;color:#7a5500;margin-bottom:12px;}
+    .slide-exemplo{background:#f5f0ff;border-left:4px solid #7b4fbf;border-radius:0 10px 10px 0;padding:12px 16px;font-size:0.9rem;color:#3d1f6b;margin-bottom:12px;}
+    .slide-titulo-secao{font-size:0.75rem;font-weight:bold;text-transform:uppercase;letter-spacing:0.08em;color:#2d6a9f;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e8f2fb;}
+
+    /* CONTROLES */
+    .controles{border-top:1px solid #eee;padding:16px 24px;}
+    body.dark .controles{border-color:#3a3a5a;}
+
+    .progresso-aula{margin-bottom:14px;}
+    .prog-slides{display:flex;justify-content:space-between;font-size:0.78rem;color:#888;margin-bottom:6px;}
+    .prog-bar-aula{background:#e0eaf2;border-radius:20px;height:6px;}
+    .prog-fill-aula{background:linear-gradient(90deg,#2d6a9f,#4a90c4);height:6px;border-radius:20px;transition:width 0.4s;}
+
+    .btns-player{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .btn-player{padding:10px 20px;border-radius:10px;border:none;font-size:0.88rem;cursor:pointer;transition:all 0.2s;font-weight:bold;}
+    .btn-play-p{background:#2d6a9f;color:white;min-width:110px;}
+    .btn-play-p:hover{background:#1f5080;}
+    .btn-nav{background:#e8f2fb;color:#2d6a9f;border:1px solid #b0cfe8;}
+    .btn-nav:hover{background:#2d6a9f;color:white;}
+    .btn-nav:disabled{opacity:0.4;cursor:not-allowed;}
+    .btn-voz{background:#eef8f2;color:#2e9e5b;border:1px solid #b0e0c0;}
+    .btn-voz:hover{background:#2e9e5b;color:white;}
+    .vel-select{padding:8px 12px;border-radius:8px;border:1px solid #d0dde8;font-size:0.82rem;background:white;color:#333;}
+    body.dark .vel-select{background:#2a2a4a;color:#ddd;border-color:#4a6a9f;}
+
+    /* GERANDO */
+    .gerando{padding:40px;text-align:center;}
+    .spinner{width:36px;height:36px;border:4px solid #ddeaf5;border-top-color:#2d6a9f;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .gerando p{color:#2d6a9f;font-size:0.9rem;line-height:1.7;}
+
+    /* LINKS EXTERNOS */
+    .links-externos{padding:0 24px 20px;}
+    .link-externo{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;text-decoration:none;color:#333;background:#f5f8fb;border:1px solid #e0eaf2;margin-bottom:8px;font-size:0.88rem;transition:background 0.2s;}
+    .link-externo:hover{background:#e8f2fb;}
+    body.dark .link-externo{background:#1e2e4a;color:#ccc;border-color:#3a4a6a;}
+
+    @media(max-width:500px){.aulas-grid{grid-template-columns:1fr;}.btns-player{gap:8px;}.btn-player{padding:8px 14px;font-size:0.82rem;}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="index.html">← Voltar</a>
+    <h1>🎬 Aulas</h1>
+  </div>
+  <button class="btn-dark" onclick="toggleDark()">🌙 Modo escuro</button>
+</header>
+
+<main>
+
+  <!-- LISTA DE AULAS -->
+  <div id="tela-lista" class="tela ativa">
+    <div class="filtros">
+      <button class="filtro-btn ativo" onclick="filtrar('todas',this)">Todas</button>
+      <button class="filtro-btn" onclick="filtrar('atuarial',this)">📐 Mat. Atuarial</button>
+      <button class="filtro-btn" onclick="filtrar('probabilidade',this)">🎲 Probabilidade</button>
+      <button class="filtro-btn" onclick="filtrar('financeira',this)">💰 Mat. Financeira</button>
+      <button class="filtro-btn" onclick="filtrar('risco',this)">⚠️ Teoria do Risco</button>
+      <button class="filtro-btn" onclick="filtrar('estatistica',this)">📊 Estatística</button>
+      <button class="filtro-btn" onclick="filtrar('gestao',this)">📋 Gestão Atuarial</button>
+    </div>
+    <div class="aulas-grid" id="aulas-grid"></div>
+  </div>
+
+  <!-- PLAYER -->
+  <div id="tela-player" class="tela">
+    <button class="btn-voltar" onclick="voltarLista()">← Voltar às aulas</button>
+    <div class="player-card" id="player-card">
+      <div class="player-topo">
+        <div class="player-emoji" id="p-emoji">📐</div>
+        <div class="player-meta">
+          <div class="player-materia" id="p-materia"></div>
+          <div class="player-titulo" id="p-titulo"></div>
+          <div class="player-desc" id="p-desc"></div>
+        </div>
+      </div>
+      <div id="player-conteudo">
+        <div class="gerando">
+          <div class="spinner"></div>
+          <p>Preparando sua aula...<br><small>A IA está criando o conteúdo 🧠</small></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+
+// ══════════════════════════════════════════
+// CATÁLOGO DE AULAS
+// ══════════════════════════════════════════
+const catalogo = [
+  // MATEMÁTICA ATUARIAL
+  { id:'at1', materia:'atuarial', emoji:'🧬', titulo:'Tábua de Mortalidade: lx, dx, qx, px', desc:'Funções básicas da tábua e como calcular uma a partir da outra', tema:'tabua de mortalidade lx dx qx px relacoes derivacoes', pdfs:['pdfs.html'] },
+  { id:'at2', materia:'atuarial', emoji:'📊', titulo:'Probabilidades npx, nqx e diferidas', desc:'Sobreviver ou morrer em n anos, probabilidade diferida m|nqx', tema:'npx nqx probabilidade sobrevivencia morte n anos diferida', pdfs:[] },
+  { id:'at3', materia:'atuarial', emoji:'⚙️', titulo:'Comutadores Dx, Nx, Cx, Mx', desc:'Como construir e usar os comutadores para calcular rendas', tema:'comutadores Dx Nx Cx Mx tabua comutada', pdfs:[] },
+  { id:'at4', materia:'atuarial', emoji:'💰', titulo:'Rendas Vitalícias com Comutadores', desc:'Antecipada, postecipada, temporária, diferida — todas as variações', tema:'rendas vitalícias antecipada postecipada temporária diferida comutadores', pdfs:[] },
+  { id:'at5', materia:'atuarial', emoji:'🔒', titulo:'Seguros de Vida: Ax, dote puro e misto', desc:'Seguro vida inteira, temporário, dote puro nEx e dote misto', tema:'seguro vida inteira Ax temporario dote puro misto comutadores', pdfs:[] },
+  { id:'at6', materia:'atuarial', emoji:'📈', titulo:'Prêmio Puro e Reserva Matemática', desc:'Princípio da equivalência, prêmio nivelado, reserva prospectiva', tema:'premio puro equivalencia atuarial reserva prospectiva retrospectiva recursao', pdfs:[] },
+  { id:'at7', materia:'atuarial', emoji:'👫', titulo:'Rendas com Múltiplas Vidas', desc:'Status joint-life, último sobrevivente, pensão reversível', tema:'multiplas vidas joint life ultimo sobrevivente pensao reversivel', pdfs:[] },
+
+  // PROBABILIDADE
+  { id:'pr1', materia:'probabilidade', emoji:'🎯', titulo:'Probabilidade Condicional e Bayes', desc:'P(A|B), independência, Bayes aplicado a seguros', tema:'probabilidade condicional independencia Bayes seguros sinistros', pdfs:[] },
+  { id:'pr2', materia:'probabilidade', emoji:'🎲', titulo:'Distribuição de Poisson — o mais cobrado', desc:'Cálculos com e⁻λ, média=variância, frequência de sinistros', tema:'distribuição Poisson e^-lambda media variancia frequencia sinistros IBA', pdfs:[] },
+  { id:'pr3', materia:'probabilidade', emoji:'⏱️', titulo:'Distribuição Exponencial e Falta de Memória', desc:'P(X>t)=e⁻λt, falta de memória, mínimo de exponenciais', tema:'exponencial falta memoria P(X>t) minimo exponenciais independentes', pdfs:[] },
+  { id:'pr4', materia:'probabilidade', emoji:'📉', titulo:'Distribuições: Gama, Pareto e Lognormal', desc:'Cauda pesada, sinistros catastróficos, quando usar cada uma', tema:'Gama Pareto cauda pesada Lognormal sinistros seguros', pdfs:[] },
+  { id:'pr5', materia:'probabilidade', emoji:'🔬', titulo:'Estimação por Máxima Verossimilhança', desc:'EMV para Poisson, Exponencial, Pareto e Uniforme', tema:'EMV maximo verossimilhança Poisson Exponencial Pareto Uniforme', pdfs:[] },
+  { id:'pr6', materia:'probabilidade', emoji:'📏', titulo:'Intervalos de Confiança e Testes', desc:'z=1,96 (95%), erro tipo I e II, poder do teste', tema:'intervalos confianca z t erro tipo I II poder teste hipotese', pdfs:[] },
+
+  // MATEMÁTICA FINANCEIRA
+  { id:'fi1', materia:'financeira', emoji:'💱', titulo:'Juros Compostos e Conversão de Taxas', desc:'Nominal vs efetiva — a pegadinha mais cobrada do IBA', tema:'juros compostos conversao taxas nominal efetiva Fisher (1.005)^12', pdfs:[] },
+  { id:'fi2', materia:'financeira', emoji:'📅', titulo:'Anuidades: Postecipada e Antecipada', desc:'"No ato" vs "1 mês após" — como nunca mais errar', tema:'anuidades postecipada antecipada perpetuidade diferida PMT', pdfs:[] },
+  { id:'fi3', materia:'financeira', emoji:'🏠', titulo:'Amortização: Price vs SAC', desc:'Diferenças, quando usar cada um, cálculo de parcelas', tema:'amortizacao Price SAC parcela constante decrescente saldo devedor', pdfs:[] },
+  { id:'fi4', materia:'financeira', emoji:'📊', titulo:'VPL, TIR e Títulos Prefixados', desc:'Análise de investimentos, duration, preço do título', tema:'VPL TIR titulo prefixado duration preço taxa inversamente proporcional', pdfs:[] },
+
+  // TEORIA DO RISCO
+  { id:'ri1', materia:'risco', emoji:'⚡', titulo:'Modelo Coletivo: E[S] e Var[S]', desc:'Frequência × Severidade, fórmulas de esperança e variância', tema:'modelo coletivo E[S] Var[S] frequencia severidade sinistro agregado', pdfs:[] },
+  { id:'ri2', materia:'risco', emoji:'🛡️', titulo:'Resseguro: XL, Stop Loss e Proporcional', desc:'Quando usar cada tipo, efeito na taxa, proteção da carteira', tema:'resseguro XL Stop Loss proporcional taxa retencao cedente', pdfs:[] },
+
+  // ESTATÍSTICA
+  { id:'es1', materia:'estatistica', emoji:'🔗', titulo:'GLM: Logit e Poisson', desc:'Função de ligação, OR, Rate Ratio — interpretação dos coeficientes', tema:'GLM logit Poisson log ligacao OR odds ratio rate ratio interpretacao', pdfs:[] },
+  { id:'es2', materia:'estatistica', emoji:'📈', titulo:'Séries Temporais: ARIMA', desc:'FAC identifica MA, FACP identifica AR — como nunca confundir', tema:'ARIMA FAC FACP AR MA estacionariedade identificacao modelo', pdfs:[] },
+  { id:'es3', materia:'estatistica', emoji:'🔀', titulo:'Cadeias de Markov', desc:'Matriz de transição, n passos, distribuição estacionária', tema:'cadeia Markov matriz transicao n passos distribuicao estacionaria pi', pdfs:[] },
+
+  // GESTÃO ATUARIAL
+  { id:'ge1', materia:'gestao', emoji:'📋', titulo:'Provisões Técnicas: PPNG, PSL, IBNR, PMBaC', desc:'O que é cada uma, quando constituir — o mais cobrado do IBA', tema:'provisoes PPNG PSL IBNR PMBaC tecnicas gestao atuarial', pdfs:[] },
+  { id:'ge2', materia:'gestao', emoji:'💼', titulo:'Prêmio Comercial e Sinistralidade', desc:'Fórmula Sin=(1-Cd)/(1+Cs), prêmio puro, carregamentos', tema:'premio comercial sinistralidade carregamento segurança despesas formula', pdfs:[] },
+];
+
+// Cache de aulas geradas
+const aulaCache = {};
+let aulaAtual = null;
+let slides = [];
+let slideAtual = 0;
+let narrandoAtual = false;
+let utteranceAtual = null;
+
+// ══════════════════════════════════════════
+// RENDER LISTA
+// ══════════════════════════════════════════
+function renderLista(filtro='todas') {
+  const grid = document.getElementById('aulas-grid');
+  grid.innerHTML = '';
+  const lista = filtro === 'todas' ? catalogo : catalogo.filter(a => a.materia === filtro);
+  lista.forEach(aula => {
+    const div = document.createElement('div');
+    div.className = 'aula-card';
+    div.innerHTML = `
+      <div class="aula-thumb" style="background:linear-gradient(135deg,${corMateria(aula.materia)})">
+        <span>${aula.emoji}</span>
+        <span class="tipo-badge badge-ia">🤖 IA</span>
+        <span class="duracao">~10 min</span>
+      </div>
+      <div class="aula-info">
+        <div class="aula-materia">${nomeMateria(aula.materia)}</div>
+        <div class="aula-titulo">${aula.titulo}</div>
+        <div class="aula-desc">${aula.desc}</div>
+      </div>`;
+    div.onclick = () => abrirAula(aula);
+    grid.appendChild(div);
+  });
+}
+
+function filtrar(f, btn) {
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  renderLista(f);
+}
+
+function corMateria(m) {
+  const cores = { atuarial:'#1a4f78,#2d6a9f', probabilidade:'#4a1a78,#7b4fbf', financeira:'#1a5a30,#2e9e5b', risco:'#7a3a00,#c07030', estatistica:'#003a7a,#1a6ac0', gestao:'#5a0a20,#9e2040' };
+  return cores[m] || '#1a4f78,#2d6a9f';
+}
+
+function nomeMateria(m) {
+  const nomes = { atuarial:'📐 Matemática Atuarial', probabilidade:'🎲 Probabilidade', financeira:'💰 Mat. Financeira', risco:'⚠️ Teoria do Risco', estatistica:'📊 Estatística', gestao:'📋 Gestão Atuarial' };
+  return nomes[m] || m;
+}
+
+// ══════════════════════════════════════════
+// ABRIR AULA
+// ══════════════════════════════════════════
+async function abrirAula(aula) {
+  aulaAtual = aula;
+  pararNarracao();
+  document.getElementById('p-emoji').textContent = aula.emoji;
+  document.getElementById('p-materia').textContent = nomeMateria(aula.materia);
+  document.getElementById('p-titulo').textContent = aula.titulo;
+  document.getElementById('p-desc').textContent = aula.desc;
+  document.getElementById('player-conteudo').innerHTML = `<div class="gerando"><div class="spinner"></div><p>Preparando sua aula sobre <strong>${aula.titulo}</strong>...<br><small>Isso leva alguns segundos 🧠</small></p></div>`;
+  irTela('tela-player');
+
+  if (aulaCache[aula.id]) { iniciarPlayer(aulaCache[aula.id]); return; }
+
+  const prompt = `Você é um professor criando uma aula narrada para uma aluna com TDAH e autismo que se prepara para o Exame IBA de Ciências Atuariais.
+
+Tema: ${aula.titulo}
+Contexto: ${aula.tema}
+
+Crie uma aula em slides/blocos narrados. Regras:
+- Cada bloco é uma "tela" que aparece enquanto é lido em voz alta
+- Linguagem simples, frases curtas, como um professor falando
+- Máximo 3 frases por bloco de texto
+- Fórmulas com legenda em bloco separado
+- Exemplos numéricos concretos
+- Destaques para pontos importantes
+- Total: 8 a 12 blocos
+
+Responda APENAS com JSON:
+{
+  "titulo": "título da aula",
+  "blocos": [
+    { "tipo": "intro", "texto": "introdução da aula em 2-3 frases" },
+    { "tipo": "texto", "secao": "Nome da seção", "texto": "explicação em até 3 frases" },
+    { "tipo": "formula", "secao": "Fórmula principal", "expressao": "LaTeX inline com $ $", "legenda": "onde X = ..., Y = ..." },
+    { "tipo": "destaque", "texto": "ponto importante ou pegadinha" },
+    { "tipo": "exemplo", "texto": "exemplo numérico com números concretos e resultado" },
+    { "tipo": "resumo", "texto": "resumo do que viu nesta aula em 2-3 frases" }
+  ]
+}`;
+
+  try {
+    const resp = await fetch('/.netlify/functions/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json','anthropic-version':'2023-06-01' },
+      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:3000, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error?.message || 'Erro na API');
+    const txt = data.content[0].text;
+    const aula_data = JSON.parse(txt.replace(/```json|```/g,'').trim());
+    aulaCache[aula.id] = aula_data;
+    iniciarPlayer(aula_data);
+  } catch(e) {
+    document.getElementById('player-conteudo').innerHTML = `<div style="padding:24px;color:#d94f4f;font-size:0.9rem">❌ Erro: ${e.message}<br><button onclick="abrirAula(aulaAtual)" style="margin-top:12px;padding:8px 16px;background:#2d6a9f;color:white;border:none;border-radius:8px;cursor:pointer">Tentar novamente</button></div>`;
+  }
+}
+
+// ══════════════════════════════════════════
+// PLAYER
+// ══════════════════════════════════════════
+function iniciarPlayer(data) {
+  slides = data.blocos || [];
+  slideAtual = 0;
+  renderPlayer();
+}
+
+function renderPlayer() {
+  if (!slides.length) return;
+  const pct = Math.round((slideAtual + 1) / slides.length * 100);
+  const blocoHTML = renderBloco(slides[slideAtual]);
+
+  document.getElementById('player-conteudo').innerHTML = `
+    <div class="narrador">
+      <div class="slide-container">
+        <div class="slide-bloco">${blocoHTML}</div>
+      </div>
+    </div>
+    <div class="controles">
+      <div class="progresso-aula">
+        <div class="prog-slides"><span>Bloco ${slideAtual+1} de ${slides.length}</span><span>${pct}%</span></div>
+        <div class="prog-bar-aula"><div class="prog-fill-aula" style="width:${pct}%"></div></div>
+      </div>
+      <div class="btns-player">
+        <button class="btn-player btn-nav" onclick="navSlide(-1)" ${slideAtual===0?'disabled':''}>‹ Anterior</button>
+        <button class="btn-player btn-play-p" id="btn-narrar" onclick="toggleNarracao()">🔊 Ouvir</button>
+        <button class="btn-player btn-nav" onclick="navSlide(1)" ${slideAtual===slides.length-1?'disabled':''}>Próximo ›</button>
+        <select class="vel-select" id="vel-select" title="Velocidade">
+          <option value="0.8">🐢 Lento</option>
+          <option value="1" selected>Normal</option>
+          <option value="1.3">🐇 Rápido</option>
+        </select>
+      </div>
+      ${slideAtual===slides.length-1 ? `<div style="margin-top:14px"><button class="btn-player btn-play-p" style="width:100%;background:#2e9e5b" onclick="voltarLista()">✅ Aula concluída — Voltar</button></div>` : ''}
+    </div>
+    ${aulaAtual?.pdfs?.length ? renderLinks() : ''}
+  `;
+
+  // KaTeX
+  setTimeout(() => {
+    if (window.renderMathInElement) renderMathInElement(document.getElementById('player-conteudo'), { delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError:false });
+  }, 100);
+}
+
+function renderBloco(b) {
+  if (!b) return '';
+  if (b.tipo === 'intro') return `<div class="slide-titulo-secao">🎬 Introdução</div><div class="slide-texto">${b.texto||''}</div>`;
+  if (b.tipo === 'texto') return `${b.secao?`<div class="slide-titulo-secao">${b.secao}</div>`:''}<div class="slide-texto">${b.texto||''}</div>`;
+  if (b.tipo === 'formula') return `${b.secao?`<div class="slide-titulo-secao">📐 ${b.secao}</div>`:''}
+    <div class="slide-formula">${b.expressao||''}</div>
+    ${b.legenda?`<div class="slide-texto" style="font-size:0.85rem;color:#555">${b.legenda}</div>`:''}`;
+  if (b.tipo === 'destaque') return `<div class="slide-titulo-secao">⚠️ Atenção</div><div class="slide-destaque">${b.texto||''}</div>`;
+  if (b.tipo === 'exemplo') return `<div class="slide-titulo-secao">🔢 Exemplo</div><div class="slide-exemplo">${b.texto||''}</div>`;
+  if (b.tipo === 'resumo') return `<div class="slide-titulo-secao">✅ Resumo</div><div class="slide-texto" style="font-size:0.95rem;font-weight:bold">${b.texto||''}</div>`;
+  return `<div class="slide-texto">${b.texto||''}</div>`;
+}
+
+function renderLinks() {
+  return `<div class="links-externos">
+    <a class="link-externo" href="pdfs.html" target="_blank">📄 Ver PDFs desta matéria</a>
+  </div>`;
+}
+
+function navSlide(dir) {
+  pararNarracao();
+  slideAtual = Math.max(0, Math.min(slides.length-1, slideAtual+dir));
+  renderPlayer();
+}
+
+// ══════════════════════════════════════════
+// NARRAÇÃO
+// ══════════════════════════════════════════
+function toggleNarracao() {
+  if (narrandoAtual) { pararNarracao(); return; }
+  const b = slides[slideAtual];
+  if (!b) return;
+  const texto = extrairTexto(b);
+  if (!texto) return;
+
+  const vel = parseFloat(document.getElementById('vel-select')?.value || '1');
+  const utter = new SpeechSynthesisUtterance(texto);
+  utter.lang = 'pt-BR';
+  utter.rate = vel;
+  utter.onend = () => {
+    narrandoAtual = false;
+    const btn = document.getElementById('btn-narrar');
+    if (btn) btn.textContent = '🔊 Ouvir';
+    // Avança automaticamente
+    if (slideAtual < slides.length-1) { setTimeout(() => navSlide(1), 800); }
+  };
+  utter.onerror = () => { narrandoAtual = false; };
+
+  utteranceAtual = utter;
+  narrandoAtual = true;
+  const btn = document.getElementById('btn-narrar');
+  if (btn) btn.textContent = '⏹ Parar';
+  speechSynthesis.speak(utter);
+}
+
+function pararNarracao() {
+  speechSynthesis.cancel();
+  narrandoAtual = false;
+  const btn = document.getElementById('btn-narrar');
+  if (btn) btn.textContent = '🔊 Ouvir';
+}
+
+function extrairTexto(b) {
+  const t = (b.texto||'') + ' ' + (b.legenda||'');
+  // Remove LaTeX básico
+  return t.replace(/\$[^$]+\$/g,'').replace(/<[^>]+>/g,'').trim();
+}
+
+// ══════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════
+function voltarLista() {
+  pararNarracao();
+  irTela('tela-lista');
+}
+
+function irTela(id) {
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function toggleDark() {
+  document.body.classList.toggle('dark');
+  const btn = document.querySelector('.btn-dark');
+  btn.textContent = document.body.classList.contains('dark') ? '☀️ Modo claro' : '🌙 Modo escuro';
+}
+
+// Init
+renderLista();
+</script>
+</body>
+</html>
