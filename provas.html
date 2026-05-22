@@ -22,8 +22,8 @@
     .aba { padding: 9px 20px; border-radius: 20px; border: 2px solid #b0cfe8; background: white; color: #2d6a9f; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; }
     .aba:hover, .aba.ativo { background: #2d6a9f; color: white; border-color: #2d6a9f; }
 
-    .tela { display: none; }
-    .tela.ativa { display: block; }
+    .tela { display: none; width: 100%; }
+    .tela.ativa { display: block; width: 100%; min-height: 200px; }
 
     /* ═══ ANÁLISE ═══ */
     .analise-header {
@@ -192,6 +192,9 @@
     </div>
   </div>
 
+  </div>
+  </div>
+
   <!-- ═══════════════════════════════════ -->
   <!-- SIMULADOR ESTILO IBA -->
   <!-- ═══════════════════════════════════ -->
@@ -217,6 +220,9 @@
           <select id="qtd">
             <option value="5">5 questões</option>
             <option value="10" selected>10 questões</option>
+            <option value="20">20 questões</option>
+            <option value="30">30 questões</option>
+            <option value="40">40 questões</option>
           </select>
         </div>
         <div class="form-group">
@@ -250,7 +256,6 @@
 </main>
 
 <script>
-  const CHAVE = 'SUA_CHAVE_AQUI'; // ← SUBSTITUA
 
   function trocarAba(aba, btn) {
     document.querySelectorAll('.aba').forEach(b => b.classList.remove('ativo'));
@@ -264,7 +269,7 @@
 
   async function gerarSimulado() {
     const disciplina = document.getElementById('disciplina').value;
-    const qtd = document.getElementById('qtd').value;
+    const qtd = parseInt(document.getElementById('qtd').value);
     const ano = document.getElementById('ano').value;
 
     const contexto = {
@@ -290,54 +295,47 @@
     document.getElementById('simContainer').innerHTML = '';
     questoes = []; respostas = {}; respondidas = 0;
 
-    const prompt = `Você é um elaborador de provas do Exame de Admissão ao IBA (Instituto Brasileiro de Atuária).
+    const prompt = `Crie NUMERO_QUESTOES questões de múltipla escolha estilo Exame IBA para "${disciplina}". Temas: ${contexto[disciplina] || disciplina}. Estilo ${estiloAno}. 5 alternativas (A-E), nível médio-difícil, contexto atuarial.
 
-Crie ${qtd} questões de múltipla escolha para a disciplina "${disciplina}" no estilo "${estiloAno}".
+IMPORTANTE: Use APENAS texto simples. NÃO use LaTeX, símbolos matemáticos especiais, til (~), acento circunflexo em fórmulas ou qualquer notação especial. Escreva fórmulas por extenso: escreva "q_x = d_x / l_x" em vez de notação LaTeX. Use R$ para valores monetários.
 
-Temas prioritários desta disciplina: ${contexto[disciplina] || disciplina}
-
-ESTILO OBRIGATÓRIO do IBA:
-- 5 alternativas (A a E)
-- Misture questões conceituais ("é correto afirmar que...") com questões numéricas
-- Nas questões numéricas, inclua dados numéricos precisos e calcule o resultado correto
-- Algumas questões devem ter pegadinhas sutis como nas provas reais
-- Nível médio a difícil, compatível com candidatos a atuário
-- Contexto sempre aplicado a seguros, previdência ou atuária
-
-Responda APENAS com JSON válido, sem texto antes ou depois:
-{
-  "questoes": [
-    {
-      "enunciado": "texto completo da questão",
-      "alternativas": ["A) texto", "B) texto", "C) texto", "D) texto", "E) texto"],
-      "correta": 0,
-      "explicacao": "explicação completa e didática da resposta correta",
-      "padrao_prova": "como este tema apareceu nas provas IBA (ex: caiu em 2024 e 2025)",
-      "dica": "macete para não errar este tipo de questão"
-    }
-  ]
-}`;
+JSON apenas (sem markdown):
+{"questoes":[{"enunciado":"...","alternativas":["A)...","B)...","C)...","D)...","E)..."],"correta":0,"explicacao":"...","padrao_prova":"...","dica":"..."}]}`;
 
     try {
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': CHAVE,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 4000,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error?.message || 'Erro na API');
-      const texto = data.content[0].text;
-      const json = JSON.parse(texto.replace(/```json|```/g, '').trim());
-      questoes = json.questoes;
+      // Gera em blocos de 10 para evitar JSON truncado
+      const totalQtd = parseInt(document.getElementById('qtd').value);
+      const BLOCO = 10;
+      const numBlocos = Math.ceil(totalQtd / BLOCO);
+      questoes = [];
+
+      for (let b = 0; b < numBlocos; b++) {
+        const blocoQtd = Math.min(BLOCO, totalQtd - b * BLOCO);
+        const promptBloco = prompt.replace('NUMERO_QUESTOES', blocoQtd);
+
+        if (numBlocos > 1) {
+          document.getElementById('loading').innerHTML = '<div class="spinner"></div><p style="color:#2d6a9f">Gerando bloco ' + (b+1) + ' de ' + numBlocos + '...</p>';
+        }
+
+        const resp = await fetch('/.netlify/functions/proxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-5-20250929',
+            max_tokens: 8000,
+            messages: [{ role: 'user', content: promptBloco }]
+          })
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error?.message || 'Erro na API');
+        const texto = data.content[0].text;
+        const json = JSON.parse(texto.replace(/```json|```/g, '').trim());
+        questoes = questoes.concat(json.questoes || []);
+      }
+
       renderSimulado();
     } catch (e) {
       document.getElementById('erroMsg').style.display = 'block';

@@ -159,7 +159,6 @@
 </main>
 
 <script>
-const CHAVE = 'SUA_CHAVE_AQUI'; // ← SUBSTITUA
 let katexPronto = false;
 
 // ══════════════════════════════════════════════
@@ -377,9 +376,9 @@ Responda APENAS com JSON válido:
 Use no máximo 6 blocos de conteúdo, 2 exercícios e 3 questões de simulado.`;
 
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    const resp=await fetch('/.netlify/functions/proxy',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':CHAVE,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},
       body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,messages:[{role:'user',content:prompt}]})
     });
     const data=await resp.json();
