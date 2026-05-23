@@ -489,7 +489,7 @@ function baixarPDFAula(si, di) {
   const pageW = 210;
   const maxW = pageW - margin * 2;
   let y = 20;
-  const semana = plano[si];
+  const semana = semanas[si];
   const dia = semana.dias[di];
 
   function addText(text, size, bold, color) {
@@ -622,5 +622,6 @@ renderInicio();
 </script>
 </body>
 </html>
+
 
 
