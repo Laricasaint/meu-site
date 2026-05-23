@@ -495,7 +495,7 @@ function baixarPDFAula(si, di) {
     doc.setFont("helvetica", bold ? "bold" : "normal");
     if (color) doc.setTextColor(color[0], color[1], color[2]);
     else doc.setTextColor(30, 30, 30);
-    const clean = (text||"").replace(/<[^>]+>/g, "").replace(/\$\$?[^$]+\$\$?/g, "").replace(/\\n/g, " ");
+    const clean = (text||"").replace(/<[^>]+>/g, "").replace(/\$\$?[^$]+\$\$?/g, "").replace(/\\n/g, " ").replace(/[₀₁₂₃₄₅₆₇₈₉]/g, n => "0123456789"["₀₁₂₃₄₅₆₇₈₉".indexOf(n)]).replace(/\*\*/g,"").replace(/[^\x00-\x7E]/g, c => c.normalize("NFD").replace(/[\u0300-\u036f]/g,""));
     if (!clean.trim()) return;
     const lines = doc.splitTextToSize(clean, maxW);
     lines.forEach(line => {
@@ -703,5 +703,6 @@ renderInicio();
 </script>
 </body>
 </html>
+
 
 
