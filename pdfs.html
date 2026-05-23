@@ -5,195 +5,145 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDFs - Meus Estudos</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f4f8;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      background-color: #2d6a9f;
-      color: white;
-      padding: 20px 30px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    header a {
-      color: white;
-      text-decoration: none;
-      font-size: 1.4rem;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.4rem;
-    }
-
-    main {
-      padding: 40px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .materia {
-      background: white;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      overflow: hidden;
-    }
-
-    .materia-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 24px;
-      cursor: pointer;
-      user-select: none;
-      background: white;
-      transition: background 0.2s;
-    }
-
-    .materia-header:hover {
-      background: #f0f6fc;
-    }
-
-    .materia-header h2 {
-      margin: 0;
-      font-size: 1rem;
-      color: #2d6a9f;
-    }
-
-    .materia-header .seta {
-      font-size: 0.9rem;
-      color: #999;
-      transition: transform 0.2s;
-    }
-
-    .materia-header.aberto .seta {
-      transform: rotate(180deg);
-    }
-
-    .materia-conteudo {
-      display: none;
-      padding: 0 24px 16px;
-      border-top: 1px solid #e8f0f8;
-    }
-
-    .materia-conteudo.aberto {
-      display: block;
-    }
-
-    .pdf-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 8px;
-      text-decoration: none;
-      color: #333;
-      margin-top: 8px;
-      background: #f5f8fb;
-      transition: background 0.2s;
-      font-size: 0.95rem;
-    }
-
-    .pdf-link:hover {
-      background: #ddeaf5;
-    }
-
-    .adicionar {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: 2px dashed #c0d4e8;
-      color: #7aadcf;
-      font-size: 0.85rem;
-      cursor: pointer;
-      background: none;
-      text-decoration: none;
-    }
+    body{font-family:Arial,sans-serif;background:#f0f4f8;margin:0;padding:0;}
+    header{background:#2d6a9f;color:white;padding:20px 30px;display:flex;align-items:center;gap:16px;}
+    header a{color:white;text-decoration:none;font-size:1.4rem;}
+    header h1{margin:0;font-size:1.4rem;}
+    main{padding:40px;max-width:900px;margin:0 auto;}
+    .materia{background:white;border-radius:12px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.08);overflow:hidden;}
+    .materia-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;cursor:pointer;user-select:none;background:white;transition:background 0.2s;}
+    .materia-header:hover{background:#f0f6fc;}
+    .materia-header h2{margin:0;font-size:1rem;color:#2d6a9f;}
+    .materia-header .seta{font-size:0.9rem;color:#999;transition:transform 0.2s;}
+    .materia-header.aberto .seta{transform:rotate(180deg);}
+    .materia-conteudo{display:none;padding:0 24px 16px;border-top:1px solid #e8f0f8;}
+    .materia-conteudo.aberto{display:block;}
+    .pdf-link{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;text-decoration:none;color:#333;margin-top:8px;background:#f5f8fb;transition:background 0.2s;font-size:0.95rem;}
+    .pdf-link:hover{background:#ddeaf5;}
   </style>
 </head>
 <body>
+<header>
+  <a href="index.html">&#8592;</a>
+  <h1>&#128209; Meus PDFs de Estudo</h1>
+</header>
+<main>
 
-  <header>
-    <a href="index.html">← Voltar</a>
-    <h1>📄 PDFs</h1>
-  </header>
-
-  <main>
-
-    <div class="materia">
-      <div class="materia-header" onclick="toggle(this)">
-        <h2>📊 Estatística</h2>
-        <span class="seta">▼</span>
-      </div>
-      <div class="materia-conteudo">
-        <a class="pdf-link" href="https://drive.google.com/file/d/1DazacGOLKHLlUamdVGQxPu2-YQ9eyIKL/view?usp=drive_link" target="_blank">📄 Nome do PDF</a>
-        <a class="pdf-link" href="SEU_LINK" target="_blank">📄 Nome do PDF</a>
-      </div>
+  <div class="materia">
+    <div class="materia-header" onclick="toggle(this)">
+      <h2>&#129516; Matematica Atuarial</h2>
+      <span class="seta">&#9660;</span>
     </div>
-
-    <div class="materia">
-      <div class="materia-header" onclick="toggle(this)">
-        <h2>💰 Matemática Financeira</h2>
-        <span class="seta">▼</span>
-      </div>
-      <div class="materia-conteudo">
-        <a class="pdf-link" href="SEU_LINK" target="_blank">📄 Nome do PDF</a>
-        <a class="pdf-link" href="SEU_LINK" target="_blank">📄 Nome do PDF</a>
-      </div>
+    <div class="materia-conteudo">
+      <a class="pdf-link" href="https://drive.google.com/file/d/1DazacGOLKHLlUamdVGQxPu2-YQ9eyIKL/view?usp=drive_link" target="_blank">&#128196; Aula 1 - Anuidade</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/17vUUDp1o3yTy_TT6ra-cdm3NB2IdbAHh/view?usp=drive_link" target="_blank">&#128196; Aula 2 - Anuidade</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1u0ZgnFrSIL1_aj1JNLzsm4yoF0CfJTVm/view?usp=drive_link" target="_blank">&#128196; Aula 3 - Seguro de Vida</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1prdfKv4e2Og8Z7f_8NwRuQbxbFnC3K7B/view?usp=drive_link" target="_blank">&#128196; Aula 4 - Seguro de Vida</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1WPnoSDGhtmlSVhkcStfOSB3apN3PziyX/view?usp=drive_link" target="_blank">&#128196; Aula 5 - Seguro de Vida</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1XUPhCSnJLrmbb9zylUPw2yR8pGMF6t84/view?usp=drive_link" target="_blank">&#128196; Aula 6 - Premios</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/17eHkBXd-a61CIjtziHPCUO5LvBM7dl0A/view?usp=drive_link" target="_blank">&#128196; Aula 7 - Premios</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1-_dUPVmEiStPe5JNpEIDG9uMxp4fYA-D/view?usp=drive_link" target="_blank">&#128196; Aula 8 - Premios</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1etDbD9YCZydeP3bLn4vDFy2IcZxw1wKh/view?usp=drive_link" target="_blank">&#128196; Aula 9 - Provisao Matematica</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1J31hutO50IS4zqqOCcS02iuTDG7J89Yy/view?usp=drive_link" target="_blank">&#128196; Aula 10 - Provisao Matematica</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1QVJXM4GfIUZ9liKmtYxNZtw5zDYq7IaQ/view?usp=drive_link" target="_blank">&#128196; Aula 11 - Provisao Matematica</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1yb02-zgovkLS0TfzuICpB3rRmwFUroJN/view?usp=drive_link" target="_blank">&#128196; Aula 12 - Regimes Financeiros</a>
     </div>
+  </div>
 
-    <div class="materia">
-      <div class="materia-header" onclick="toggle(this)">
-        <h2>🎲 Probabilidade</h2>
-        <span class="seta">▼</span>
-      </div>
-      <div class="materia-conteudo">
-        <a class="pdf-link" href="SEU_LINK" target="_blank">📄 Nome do PDF</a>
-        <a class="pdf-link" href="SEU_LINK" target="_blank">📄 Nome do PDF</a>
-      </div>
+  <div class="materia">
+    <div class="materia-header" onclick="toggle(this)">
+      <h2>&#127921; Probabilidade</h2>
+      <span class="seta">&#9660;</span>
     </div>
-
-    <div class="materia">
-      <div class="materia-header" onclick="toggle(this)">
-        <h2>⚠️ Teoria do Risco</h2>
-        <span class="seta">▼</span>
-      </div>
-      <div class="materia-conteudo">
-        <a class="pdf-link" href="SEU_LINK" target="_blank">📄 Nome do PDF</a>
-        <a class="pdf-link" href="SEU_LINK" target="_blank">📄 Nome do PDF</a>
-      </div>
+    <div class="materia-conteudo">
+      <a class="pdf-link" href="https://drive.google.com/file/d/1zpxTdMfLgJTPD03uyRqmOLY_DGg1H5gW/view?usp=drive_link" target="_blank">&#128196; PDF 1</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1BcaYMT3Qzpn1loxMNMW1ZOl7MciaXfsq/view?usp=drive_link" target="_blank">&#128196; PDF 2</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1QVMbxixzD24VAJGRLMfVG8ys7Azx5bRJ/view?usp=drive_link" target="_blank">&#128196; PDF 3</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1wiunlhQq65dsCrav0_A8OltnDdj0SJ9p/view?usp=drive_link" target="_blank">&#128196; PDF 4</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1vD6clE6xt7n_l_lNIXAVzj2JcgcnNAhF/view?usp=drive_link" target="_blank">&#128196; PDF 5</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1MfyGiMu31bFhmLR1er_IHJfTUQ-NxD9p/view?usp=drive_link" target="_blank">&#128196; PDF 6</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/189P9GWf88r9LJdyx7ZGvbDSlNUgy3Fyr/view?usp=drive_link" target="_blank">&#128196; PDF 7</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/10y__TDy2zm8PG8vN6WZqrLXfeFscYEZF/view?usp=drive_link" target="_blank">&#128196; PDF 8</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1stuJtO5qaf-y3PSV8jx6zYSt--1o6cFj/view?usp=drive_link" target="_blank">&#128196; PDF 9</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/14KOC-grQtc47KRGjC5IrTjv2KzwxAErS/view?usp=drive_link" target="_blank">&#128196; PDF 10</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1Rld7J9CPBKfJ_GMtwkwvocfHQhi75QUH/view?usp=drive_link" target="_blank">&#128196; PDF 11</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1kPddA23AN9R6EWoV7cH1Vh9ntn8zCv8I/view?usp=drive_link" target="_blank">&#128196; PDF 12</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1mJtPgxJ-94m_wA9VeWss4KUOwVNryuUz/view?usp=drive_link" target="_blank">&#128196; PDF 13</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1UKG2TWgwB2TwKGNZcb8w_8YhitwKblvF/view?usp=drive_link" target="_blank">&#128196; PDF 14</a>
     </div>
+  </div>
 
-    <div class="materia">
-      <div class="materia-header" onclick="toggle(this)">
-        <h2>📐 Matemática Atuarial</h2>
-        <span class="seta">▼</span>
-      </div>
-      <div class="materia-conteudo">
-        <a class="pdf-link" href="SEU_LINK" target="_blank">📄 Nome do PDF</a>
-        <a class="pdf-link" href="SEU_LINK" target="_blank">📄 Nome do PDF</a>
-      </div>
+  <div class="materia">
+    <div class="materia-header" onclick="toggle(this)">
+      <h2>&#128181; Matematica Financeira</h2>
+      <span class="seta">&#9660;</span>
     </div>
+    <div class="materia-conteudo">
+      <a class="pdf-link" href="https://drive.google.com/file/d/1DTU7wYMggHbOgqOV5LoMNSqUV0xEgIXH/view?usp=drive_link" target="_blank">&#128196; PDF 1</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1lqJW4X5NGvyYeNTvqf0jF84u7bYXOsX9/view?usp=drive_link" target="_blank">&#128196; PDF 2</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/16mav_rZOoRYxdhSpGkbaLxtuZelk1ARQ/view?usp=drive_link" target="_blank">&#128196; PDF 3</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/14dwGSSZNFpjNjk7_uXvFBs81anQHB3dp/view?usp=drive_link" target="_blank">&#128196; PDF 4</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1G5p7QBOYC8GYGgUnmffa2_pqHYm5ymgZ/view?usp=drive_link" target="_blank">&#128196; PDF 5</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1HndmskHBKWlBDJXHXSbKFZx-z5JtXPhi/view?usp=drive_link" target="_blank">&#128196; PDF 6</a>
+    </div>
+  </div>
 
-  </main>
+  <div class="materia">
+    <div class="materia-header" onclick="toggle(this)">
+      <h2>&#9889; Teoria do Risco</h2>
+      <span class="seta">&#9660;</span>
+    </div>
+    <div class="materia-conteudo">
+      <a class="pdf-link" href="https://drive.google.com/file/d/1cdJIk7eXcL7aC6i26lYJA31yaiNb8bz9/view?usp=drive_link" target="_blank">&#128196; PDF 1</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1R6SrkHo5jYh7_-ZHhzr6G_ML4DeWWh8n/view?usp=drive_link" target="_blank">&#128196; PDF 2</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/19IPfSZPd1MV-Seakn8tb1pboc3MX6ewk/view?usp=drive_link" target="_blank">&#128196; PDF 3</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1uh5JhW44xuAxDuERAuqe-tkYf7rV5VQt/view?usp=drive_link" target="_blank">&#128196; PDF 4</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/14mNsTbN-xnYuSY7mB6OLVaEmLLpuNk4H/view?usp=drive_link" target="_blank">&#128196; PDF 5</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1eIf9wDsmwS0bYkRXK7hJ2TDMWeAFcABB/view?usp=drive_link" target="_blank">&#128196; PDF 6</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1huk1uzQRUgEDLvyegywn9VXcYfaFQFzi/view?usp=drive_link" target="_blank">&#128196; PDF 7</a>
+    </div>
+  </div>
 
-  <script>
-    function toggle(header) {
-      header.classList.toggle('aberto');
-      const conteudo = header.nextElementSibling;
-      conteudo.classList.toggle('aberto');
-    }
-  </script>
+  <div class="materia">
+    <div class="materia-header" onclick="toggle(this)">
+      <h2>&#128202; Estatistica</h2>
+      <span class="seta">&#9660;</span>
+    </div>
+    <div class="materia-conteudo">
+      <a class="pdf-link" href="https://drive.google.com/file/d/18yMdHswTJjyGMP7wytU6Sj6S03STVre9/view?usp=drive_link" target="_blank">&#128196; PDF 1</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1OxMDv_bJydYLQ8qOEqQ_KD8XSKpjtslY/view?usp=drive_link" target="_blank">&#128196; PDF 2</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1VmePNU20oWiFbEkvLWTY4EqGtNznNQzj/view?usp=drive_link" target="_blank">&#128196; PDF 3</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1n85LF4cvCWa7l4wu_Ear6Sy6_jRuyfZo/view?usp=drive_link" target="_blank">&#128196; PDF 4</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1-yZS9ChDWOR7YFpVRFi4ea7utqW8ZC5_/view?usp=drive_link" target="_blank">&#128196; PDF 5</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1Cy1Nvb-9_iRb7IRpU1VcbBFHuFcNbE3I/view?usp=drive_link" target="_blank">&#128196; PDF 6</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/17SYEKR8FxXm8fFOUWlTNHcgW0LZEzzZR/view?usp=drive_link" target="_blank">&#128196; PDF 7</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1RAU3CSC0DV0ARjvvoL7X0I90c6-QXgEq/view?usp=drive_link" target="_blank">&#128196; PDF 8</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1xYV2tL12fFDjolWZJiN-zzVaH7KLTk5P/view?usp=drive_link" target="_blank">&#128196; PDF 9</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1confSzx5tpx2pKBPIS7iXIBTpE0tKAip/view?usp=drive_link" target="_blank">&#128196; PDF 10</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1yPcFo1G6Q8GfwyOuBoHbspCfjaVwH0nh/view?usp=drive_link" target="_blank">&#128196; PDF 11</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/164G1fUP2H-LIS6rj5NbtanYS-FK5DNnG/view?usp=drive_link" target="_blank">&#128196; PDF 12</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1uj4_CRJM6fu78w4OQ13i_ucCxbgTHLVO/view?usp=drive_link" target="_blank">&#128196; PDF 13</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1ZjBgI7zDUOZn9u4ztRKRNnkJKl4ZBR9A/view?usp=drive_link" target="_blank">&#128196; PDF 14</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1kP553oYefuVFdb_BCR21xxrkJza9cvov/view?usp=drive_link" target="_blank">&#128196; PDF 15</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1qGtl0UOGB__-0euIoredtrYQltkdAvXN/view?usp=drive_link" target="_blank">&#128196; PDF 16</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/182wh_cGlCSIzv_DAfsvubiZ1tz65EEsD/view?usp=drive_link" target="_blank">&#128196; PDF 17</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1g01HY6LSwcUj6TPapE_IEn2xPX2bzu8Z/view?usp=drive_link" target="_blank">&#128196; PDF 18</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1K25cLAhbH1iwuI19a1ZhDupawMf2tnz8/view?usp=drive_link" target="_blank">&#128196; PDF 19</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/158II_Ibbk3QcG_ciYH4e5QHFbtm3xcPi/view?usp=drive_link" target="_blank">&#128196; PDF 20</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1N_n7guoLxchorBnjgxGp8B7S1lA4pzSz/view?usp=drive_link" target="_blank">&#128196; PDF 21</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/13wK7t05YmORU_HkGJTOl8ov2syNHcNA1/view?usp=drive_link" target="_blank">&#128196; PDF 22</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1GelL7X1YJH4--JTsbk2-0s736hOo4O3U/view?usp=drive_link" target="_blank">&#128196; PDF 23</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1vQPX3rjMY6A_m4pt2go3GF9pZZDeRNfY/view?usp=drive_link" target="_blank">&#128196; PDF 24</a>
+      <a class="pdf-link" href="https://drive.google.com/file/d/1ZMppORwoyeNX6J--xCbH8gXzrAG0pU4g/view?usp=drive_link" target="_blank">&#128196; PDF 25</a>
+    </div>
+  </div>
 
+</main>
+<script>
+function toggle(el) {
+  el.classList.toggle('aberto');
+  el.nextElementSibling.classList.toggle('aberto');
+}
+</script>
 </body>
 </html>
