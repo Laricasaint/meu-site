@@ -513,7 +513,7 @@ const blob = new Blob([html], {type:'text/html'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.target = '_blank'; a.download = (dia.titulo||'aula').replace(/[^a-zA-Z0-9]/g,'_')+'.html';
+  a.target = '_blank'; a.download = 'aula.html';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
