@@ -436,10 +436,8 @@ function renderAula(si,di,aula){
     html+='</div>';
   }
 
-  // Botao PDF
-  html+=`<div style="padding:0 20px 8px"><button class="btn-pdf-aula" onclick="baixarPDFAula(${si},${di})">⬇️ Baixar esta aula em PDF</button></div>`;
-
   // Simulado
+  html+=`<div style="padding:0 20px 8px"><button class="btn-pdf-aula" onclick="baixarPDFAula(${"$"}{si},${"$"}{di})">⬇️ Baixar esta aula em PDF</button></div>`;
   if((aula.simulado||[]).length>0){
     html+=`<div class="sim-bloco"><h3>🎯 Mini-simulado desta aula</h3>`;
     aula.simulado.forEach((q,qi)=>{
@@ -497,6 +495,91 @@ function baixarPDFAula(si, di) {
     doc.setFont("helvetica", bold ? "bold" : "normal");
     if (color) doc.setTextColor(color[0], color[1], color[2]);
     else doc.setTextColor(30, 30, 30);
+    const clean = (text||"").replace(/<[^>]+>/g, "").replace(/\$\$?[^$]+\$\$?/g, "").replace(/\\n/g, " ");
+    if (!clean.trim()) return;
+    const lines = doc.splitTextToSize(clean, maxW);
+    lines.forEach(line => {
+      if (y > 275) { doc.addPage(); y = 20; }
+      doc.text(line, margin, y);
+      y += size * 0.5;
+    });
+    y += 3;
+  }
+
+  function linha() {
+    y += 2; doc.setDrawColor(220,220,220);
+    doc.line(margin, y, pageW-margin, y); y += 5;
+  }
+
+  // Cabecalho
+  doc.setFillColor(45,106,159);
+  doc.rect(0,0,210,32,"F");
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(13);
+  doc.setFont("helvetica","bold");
+  doc.text(dia.titulo||"Aula", margin, 14);
+  doc.setFontSize(9);
+  doc.setFont("helvetica","normal");
+  doc.text("Semana "+(si+1)+" — "+(semana.titulo||""), margin, 24);
+  y = 42;
+
+  // Blocos de conteudo
+  if ((aula.blocos||[]).length > 0) {
+    addText("CONTEUDO DA AULA", 9, true, [45,106,159]);
+    y += 2;
+    aula.blocos.forEach(b => {
+      if (b.titulo) addText(b.titulo, 10, true, [30,30,100]);
+      if (b.texto) addText(b.texto, 10, false);
+      if (b.expressao) addText("Formula: " + (b.expressao||"").replace(/\$/g,""), 10, true, [30,80,140]);
+      if (Array.isArray(b.legenda)) b.legenda.forEach(l => addText("• "+l, 9, false, [80,80,80]));
+      y += 2;
+    });
+  }
+
+  // Exercicios
+  if ((aula.exercicios||[]).length > 0) {
+    linha();
+    addText("EXERCICIOS RESOLVIDOS", 9, true, [200,100,0]);
+    aula.exercicios.forEach((ex,i) => {
+      addText("Exercicio "+(i+1)+": "+(ex.enunciado||""), 10, true);
+      (ex.passos||[]).forEach((p,j) => addText("  "+(j+1)+". "+p, 9, false));
+      addText("Resposta: "+(ex.resposta||""), 9, true, [0,120,60]);
+      y += 4;
+    });
+  }
+
+  // Simulado
+  if ((aula.simulado||[]).length > 0) {
+    linha();
+    addText("MINI-SIMULADO", 9, true, [80,30,150]);
+    aula.simulado.forEach((q,qi) => {
+      addText("Questao "+(qi+1)+": "+(q.enunciado||""), 10, true);
+      (q.alternativas||[]).forEach((alt,ai) => {
+        addText((ai===q.correta ? "✓ " : "  ")+alt, 9, ai===q.correta, ai===q.correta?[0,120,60]:null);
+      });
+      addText("Explicacao: "+(q.explicacao||""), 9, false, [100,100,100]);
+      y += 4;
+    });
+  }
+
+  doc.save((dia.titulo||"aula").replace(/[^a-zA-Z0-9]/g,"_")+".pdf");
+}
+  const aula = aulaCache[chave(si,di)];
+  if (!aula) { alert("Gere a aula primeiro!"); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const margin = 15;
+  const pageW = 210;
+  const maxW = pageW - margin * 2;
+  let y = 20;
+  const semana = semanas[si];
+  const dia = semana.dias[di];
+
+  function addText(text, size, bold, color) {
+    doc.setFontSize(size);
+    doc.setFont("helvetica", bold ? "bold" : "normal");
+    if (color) doc.setTextColor(color[0], color[1], color[2]);
+    else doc.setTextColor(30, 30, 30);
     const clean = (text||"").replace(/<[^>]+>/g, "").replace(/\$\$?[^$]+\$\$?/g, "");
     if (!clean.trim()) return;
     const lines = doc.splitTextToSize(clean, maxW);
@@ -509,62 +592,60 @@ function baixarPDFAula(si, di) {
   }
 
   function linha() {
-    y += 2;
-    doc.setDrawColor(220, 220, 220);
-    doc.line(margin, y, pageW - margin, y);
-    y += 5;
+    y += 2; doc.setDrawColor(220,220,220);
+    doc.line(margin, y, pageW-margin, y); y += 5;
   }
 
-  // Cabeçalho
-  doc.setFillColor(45, 106, 159);
-  doc.rect(0, 0, 210, 32, "F");
-  doc.setTextColor(255, 255, 255);
+  // Cabecalho azul
+  doc.setFillColor(45,106,159);
+  doc.rect(0,0,210,32,"F");
+  doc.setTextColor(255,255,255);
   doc.setFontSize(13);
-  doc.setFont("helvetica", "bold");
-  doc.text(dia.titulo || "Aula", margin, 14);
+  doc.setFont("helvetica","bold");
+  doc.text(dia.titulo||"Aula", margin, 14);
   doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  doc.text("Semana " + (si+1) + " — " + (semana.titulo||""), margin, 24);
+  doc.setFont("helvetica","normal");
+  doc.text("Semana "+(si+1)+" — "+(semana.titulo||""), margin, 24);
   y = 42;
 
-  // Conteúdo
-  addText("CONTEÚDO DA AULA", 9, true, [45, 106, 159]);
-  (aula.conteudo || []).forEach(b => {
-    if (b.titulo) addText(b.titulo, 9, true, [60, 60, 60]);
-    if (b.texto) addText(b.texto, 10, false);
-    y += 2;
-  });
+  // Blocos de conteudo
+  if ((aula.blocos||[]).length > 0) {
+    addText("CONTEUDO DA AULA", 9, true, [45,106,159]);
+    aula.blocos.forEach(b => {
+      if (b.titulo) addText(b.titulo, 10, true, [30,30,30]);
+      if (b.texto) addText(b.texto, 10, false);
+      if (b.formula) addText("Formula: " + b.formula.replace(/\$/g,""), 10, true, [30,80,140]);
+      y += 2;
+    });
+  }
 
-  // Exercícios
+  // Exercicios
   if ((aula.exercicios||[]).length > 0) {
     linha();
-    addText("EXERCÍCIOS RESOLVIDOS", 9, true, [200, 100, 0]);
-    aula.exercicios.forEach((ex, i) => {
-      addText("Exercício " + (i+1) + ": " + (ex.enunciado||""), 10, true);
-      (ex.passos||[]).forEach((p,j) => addText((j+1) + ". " + p, 9, false));
-      addText(ex.resposta||"", 9, true, [0, 120, 60]);
-      y += 3;
+    addText("EXERCICIOS RESOLVIDOS", 9, true, [200,100,0]);
+    aula.exercicios.forEach((ex,i) => {
+      addText("Exercicio "+(i+1)+": "+(ex.enunciado||""), 10, true);
+      (ex.passos||[]).forEach((p,j) => addText("  "+(j+1)+". "+p, 9, false));
+      addText("Resposta: "+(ex.resposta||""), 9, true, [0,120,60]);
+      y += 4;
     });
   }
 
   // Simulado
   if ((aula.simulado||[]).length > 0) {
     linha();
-    addText("MINI-SIMULADO", 9, true, [80, 30, 150]);
-    const letras = ["A","B","C","D","E"];
-    aula.simulado.forEach((q, qi) => {
-      addText("Questão " + (qi+1) + ": " + (q.enunciado||""), 10, true);
-      (q.alternativas||[]).forEach((alt, ai) => {
-        const marcador = ai === q.correta ? "✓ " : "  ";
-        addText(marcador + alt, 9, ai === q.correta);
+    addText("MINI-SIMULADO", 9, true, [80,30,150]);
+    aula.simulado.forEach((q,qi) => {
+      addText("Questao "+(qi+1)+": "+(q.enunciado||""), 10, true);
+      (q.alternativas||[]).forEach((alt,ai) => {
+        addText((ai===q.correta ? "✓ " : "  ")+alt, 9, ai===q.correta, ai===q.correta?[0,120,60]:null);
       });
-      addText("Explicação: " + (q.explicacao||""), 9, false, [80, 80, 80]);
-      y += 3;
+      addText("Explicacao: "+(q.explicacao||""), 9, false, [100,100,100]);
+      y += 4;
     });
   }
 
-  const nomeArq = (dia.titulo||"aula").replace(/[^a-zA-Z0-9]/g,"_") + ".pdf";
-  doc.save(nomeArq);
+  doc.save((dia.titulo||"aula").replace(/[^a-zA-Z0-9]/g,"_")+".pdf");
 }
 // Rastreia respostas do simulado por aula
 const respostasSim={};
@@ -622,6 +703,5 @@ renderInicio();
 </script>
 </body>
 </html>
-
 
 
