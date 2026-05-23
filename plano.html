@@ -484,7 +484,7 @@ function baixarPDFAula(si, di) {
   const dia = semana.dias[di];
   const corpo = document.querySelector('.dia-corpo.aberto');
   if (!corpo) { alert("Erro ao capturar conteudo."); return; }
-  const w = null;
+  const w = window.open('','_blank');
   const html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
     + '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">'
     + '<style>body{font-family:Arial,sans-serif;max-width:750px;margin:20px auto;padding:24px;}'
