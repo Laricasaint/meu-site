@@ -477,7 +477,6 @@ function renderAula(si,di,aula){
   },150);
 }
 
-
 function baixarPDFAula(si, di) {
   const aula = aulaCache[chave(si,di)];
   if (!aula) { alert("Gere a aula primeiro!"); return; }
@@ -485,41 +484,35 @@ function baixarPDFAula(si, di) {
   const dia = semana.dias[di];
   const corpo = document.getElementById('aula-corpo');
   if (!corpo) { alert("Erro ao capturar conteudo."); return; }
-  const katexCSS = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
   const w = window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
-  <link rel="stylesheet" href="${katexCSS}">
-  <style>
-    body{font-family:Arial,sans-serif;max-width:750px;margin:20px auto;padding:24px;}
-    .aula-header-print{background:#2d6a9f;color:white;padding:16px;border-radius:8px;margin-bottom:20px;}
-    .bloco{background:white;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-    .bloco-titulo{font-size:0.72rem;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;}
-    .bloco-titulo.azul{color:#2d6a9f;} .bloco-titulo.verde{color:#2e9e5b;} .bloco-titulo.laranja{color:#e07b2a;} .bloco-titulo.roxo{color:#7b4fbf;}
-    .conceito-box{background:#f0f6fc;border-left:4px solid #2d6a9f;padding:12px;border-radius:0 8px 8px 0;}
-    .formula-box{background:#f0f6fc;border:2px solid #2d6a9f;border-radius:10px;padding:14px;text-align:center;}
-    .formula-legs{margin-top:8px;font-size:0.82rem;color:#555;text-align:left;}
-    .destaque-box{background:#fff8e8;border-left:4px solid #f5c842;padding:12px;border-radius:0 8px 8px 0;}
-    .exemplo-box{background:#f5f0ff;border-left:4px solid #7b4fbf;padding:12px;border-radius:0 8px 8px 0;}
-    .exercicio-box{border:1px solid #e0eaf2;border-radius:10px;padding:14px;margin-bottom:10px;}
-    .exercicio-enunciado{font-weight:bold;margin-bottom:8px;}
-    .passo{display:flex;gap:8px;margin:4px 0;align-items:flex-start;}
-    .passo-num{background:#2d6a9f;color:white;border-radius:50%;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;flex-shrink:0;}
-    .exercicio-resposta{background:#eef8f2;border-left:4px solid #2e9e5b;padding:10px;margin-top:8px;font-weight:bold;color:#1a7a42;border-radius:0 6px 6px 0;}
-    .sim-bloco{background:white;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-    .questao-sim{border:1px solid #e0eaf2;border-radius:8px;padding:12px;margin-bottom:10px;}
-    .alt-sim{padding:6px 10px;border-radius:6px;margin:3px 0;background:#f5f8fb;}
-    .alt-sim.correta{background:#eef8f2;color:#1a7a42;font-weight:bold;}
-    .feedback-sim{font-size:0.85rem;color:#555;margin-top:6px;font-style:italic;}
-    .btn-pdf-aula,.btn-voltar,.btn-concluir{display:none!important;}
-    @media print{body{padding:10px;}}
-  </style>
-  </head><body>
-  <div class="aula-header-print"><strong>${dia.titulo||'Aula'}</strong> &mdash; Semana ${si+1}: ${semana.titulo||''}</div>
-  ${corpo.innerHTML}
-  </body></html>`);
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    + '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">'
+    + '<style>body{font-family:Arial,sans-serif;max-width:750px;margin:20px auto;padding:24px;}'
+    + '.btn-pdf-aula,.btn-voltar,.btn-concluir{display:none!important;}'
+    + '.bloco{background:white;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}'
+    + '.conceito-box{background:#f0f6fc;border-left:4px solid #2d6a9f;padding:12px;border-radius:0 8px 8px 0;}'
+    + '.formula-box{background:#f0f6fc;border:2px solid #2d6a9f;border-radius:10px;padding:14px;text-align:center;}'
+    + '.destaque-box{background:#fff8e8;border-left:4px solid #f5c842;padding:12px;border-radius:0 8px 8px 0;}'
+    + '.exemplo-box{background:#f5f0ff;border-left:4px solid #7b4fbf;padding:12px;border-radius:0 8px 8px 0;}'
+    + '.exercicio-box{border:1px solid #e0eaf2;border-radius:10px;padding:14px;margin-bottom:10px;}'
+    + '.passo{display:flex;gap:8px;margin:4px 0;align-items:flex-start;}'
+    + '.passo-num{background:#2d6a9f;color:white;border-radius:50%;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;flex-shrink:0;}'
+    + '.exercicio-resposta{background:#eef8f2;border-left:4px solid #2e9e5b;padding:10px;margin-top:8px;font-weight:bold;color:#1a7a42;}'
+    + '.alt-sim{padding:6px 10px;border-radius:6px;margin:3px 0;background:#f5f8fb;}'
+    + '.alt-sim.correta{background:#eef8f2;color:#1a7a42;font-weight:bold;}'
+    + '.sim-bloco h3{font-size:0.88rem;color:#1a4f78;margin-bottom:14px;}'
+    + '.bloco-titulo{font-size:0.72rem;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;}'
+    + '.bloco-titulo.azul{color:#2d6a9f;}.bloco-titulo.verde{color:#2e9e5b;}.bloco-titulo.laranja{color:#e07b2a;}.bloco-titulo.roxo{color:#7b4fbf;}'
+    + '</style></head><body>'
+    + '<div style="background:#2d6a9f;color:white;padding:16px;border-radius:8px;margin-bottom:20px;font-weight:bold;">'
+    + (dia.titulo||'Aula') + ' &mdash; Semana ' + (si+1) + ': ' + (semana.titulo||'')
+    + '</div>'
+    + corpo.innerHTML
+    + '</body></html>';
+  w.document.write(html);
   w.document.close();
-  setTimeout(()=>w.print(), 1500);
 }
+
 // Rastreia respostas do simulado por aula
 const respostasSim={};
 function responderSim(si,di,qi,ai,correta){
