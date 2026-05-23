@@ -509,8 +509,14 @@ function baixarPDFAula(si, di) {
     + '</div>'
     + corpo.innerHTML
     + '</body></html>';
-  w.document.write(html);
-  w.document.close(); setTimeout(()=>w.print(),800);
+const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 // Rastreia respostas do simulado por aula
