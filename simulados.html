@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -279,7 +279,7 @@ Responda APENAS com um JSON válido neste formato exato, sem texto antes ou depo
 O campo "correta" é o índice (0 a 4) da alternativa correta.`;
 
     try {
-      const resp = await fetch('/.netlify/functions/proxy', {
+      const resp = await fetch('https://anthropic-proxy.larissacds.workers.dev', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -394,3 +394,4 @@ O campo "correta" é o índice (0 a 4) da alternativa correta.`;
 
 </body>
 </html>
+
