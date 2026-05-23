@@ -510,7 +510,7 @@ function baixarPDFAula(si, di) {
     + corpo.innerHTML
     + '</body></html>';
   w.document.write(html);
-  w.document.close();
+  w.document.close(); setTimeout(()=>w.print(),800);
 }
 
 // Rastreia respostas do simulado por aula
