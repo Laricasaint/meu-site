@@ -437,7 +437,7 @@ function renderAula(si,di,aula){
   }
 
   // Simulado
-  html+=\"<div style='padding:0 20px 8px'><button class='btn-pdf-aula' onclick='baixarPDFAula(${si},${di})'>⬇️ Baixar esta aula em PDF</button></div>\`;
+  html+=`<div style="padding:0 20px 8px"><button class="btn-pdf-aula" onclick="baixarPDFAula(${si},${di})">⬇️ Baixar esta aula em PDF</button></div>`;
   if((aula.simulado||[]).length>0){
     html+=`<div class="sim-bloco"><h3>🎯 Mini-simulado desta aula</h3>`;
     aula.simulado.forEach((q,qi)=>{
