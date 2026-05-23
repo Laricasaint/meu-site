@@ -299,7 +299,7 @@ Responda APENAS com JSON:
 }`;
 
   try {
-    const resp = await fetch('/.netlify/functions/proxy', {
+    const resp = await fetch('https://anthropic-proxy.larissacds.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type':'application/json','anthropic-version':'2023-06-01' },
       body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:3000, messages:[{role:'user',content:prompt}] })
@@ -504,4 +504,5 @@ renderLista();
 </script>
 </body>
 </html>
+
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -317,7 +317,7 @@ JSON apenas (sem markdown):
           document.getElementById('loading').innerHTML = '<div class="spinner"></div><p style="color:#2d6a9f">Gerando bloco ' + (b+1) + ' de ' + numBlocos + '...</p>';
         }
 
-        const resp = await fetch('/.netlify/functions/proxy', {
+        const resp = await fetch('https://anthropic-proxy.larissacds.workers.dev', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -424,3 +424,4 @@ JSON apenas (sem markdown):
 </script>
 </body>
 </html>
+
