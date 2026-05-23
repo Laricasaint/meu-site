@@ -486,148 +486,39 @@ function renderAula(si,di,aula){
 function baixarPDFAula(si, di) {
   const aula = aulaCache[chave(si,di)];
   if (!aula) { alert("Gere a aula primeiro!"); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const margin = 15;
-  const pageW = 210;
-  const maxW = pageW - margin * 2;
-  let y = 20;
   const semana = semanas[si];
   const dia = semana.dias[di];
-
-  function addLine(text, size, bold, r, g, b) {
-    if (!text) return;
-    doc.setFontSize(size);
-    doc.setFont("helvetica", bold ? "bold" : "normal");
-    doc.setTextColor(r||30, g||30, b||30);
-    var clean = String(text)
-      .replace(/<[^>]+>/g, "")
-      .replace(/\$[^$]+\$/g, "")
-      .replace(/\*\*/g, "")
-      .replace(/\n/g, " ")
-      .replace(/[^\u0000-\u00FF]/g, "?");
-    if (!clean.trim()) return;
-    var lines = doc.splitTextToSize(clean, maxW);
-    for (var i=0; i<lines.length; i++) {
-      if (y > 275) { doc.addPage(); y = 20; }
-      doc.text(lines[i], margin, y);
-      y += size * 0.45;
-    }
-    y += 2;
+  const w = window.open('','_blank');
+  let h = '<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:\'$$\',right:\'$$\',display:true},{left:\'$\',right:\'$\',display:false}],throwOnError:false});setTimeout(()=>window.print(),1000)"><\/script><style>body{font-family:Arial,sans-serif;max-width:750px;margin:20px auto;padding:24px;}h1{background:#2d6a9f;color:white;padding:16px;border-radius:8px;font-size:1.1rem;}h2{font-size:0.75rem;font-weight:bold;text-transform:uppercase;color:#2d6a9f;margin:16px 0 8px;border-bottom:2px solid #e8f2fb;padding-bottom:4px;}.c{background:#f0f6fc;border-left:4px solid #2d6a9f;padding:12px;margin-bottom:10px;border-radius:0 8px 8px 0;}.f{background:#f0f6fc;border:2px solid #2d6a9f;border-radius:8px;padding:14px;text-align:center;margin-bottom:10px;}.fl{font-size:0.82rem;color:#555;margin-top:6px;text-align:left;}.d{background:#fff8e8;border-left:4px solid #f5c842;padding:12px;margin-bottom:10px;border-radius:0 8px 8px 0;}.e{background:#f5f0ff;border-left:4px solid #7b4fbf;padding:12px;margin-bottom:10px;border-radius:0 8px 8px 0;}.ex{border:1px solid #ddd;border-radius:8px;padding:14px;margin-bottom:12px;}.p{display:flex;gap:8px;margin:6px 0;font-size:0.9rem;}.pn{background:#2d6a9f;color:white;border-radius:50%;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;}.r{background:#eef8f2;border-left:4px solid #2e9e5b;padding:10px;margin-top:8px;font-weight:bold;color:#1a7a42;}.q{border:1px solid #e0eaf2;border-radius:8px;padding:14px;margin-bottom:12px;}.a{padding:6px 10px;border-radius:6px;margin:3px 0;font-size:0.9rem;background:#f5f8fb;}.ok{background:#eef8f2;color:#1a7a42;font-weight:bold;}.exp{font-size:0.82rem;color:#666;font-style:italic;margin-top:6px;}</style></head><body>';
+  h += '<h1>'+dia.titulo+' &mdash; Semana '+(si+1)+'</h1>';
+  if((aula.blocos||[]).length){
+    h+='<h2>Conteudo da Aula</h2>';
+    aula.blocos.forEach(b=>{
+      if(b.tipo==='conceito') h+='<div class="c"><strong>'+b.titulo+'</strong><br>'+(b.texto||'')+'</div>';
+      else if(b.tipo==='formula'){h+='<div class="f"><strong>'+b.titulo+'</strong><br>\\('+(b.expressao||'').replace(/\$/g,'')+'\\)';if(Array.isArray(b.legenda))h+='<div class="fl">'+b.legenda.map(l=>'• '+l).join('<br>')+'</div>';h+='</div>';}
+      else if(b.tipo==='destaque') h+='<div class="d"><strong>'+b.titulo+'</strong><br>'+(b.texto||'').replace(/\n/g,'<br>')+'</div>';
+      else if(b.tipo==='exemplo') h+='<div class="e"><strong>'+b.titulo+'</strong><br>'+(b.texto||'').replace(/\n/g,'<br>')+'</div>';
+    });
   }
-
-  function sep() {
-    y += 2;
-    doc.setDrawColor(200,200,200);
-    doc.line(margin, y, pageW-margin, y);
-    y += 5;
+  if((aula.exercicios||[]).length){
+    h+='<h2>Exercicios Resolvidos</h2>';
+    aula.exercicios.forEach((ex,i)=>{
+      h+='<div class="ex"><strong>Exercicio '+(i+1)+':</strong> '+ex.enunciado;
+      (ex.passos||[]).forEach((p,j)=>h+='<div class="p"><div class="pn">'+(j+1)+'</div><div>'+p+'</div></div>');
+      h+='<div class="r">'+ex.resposta+'</div></div>';
+    });
   }
-
-  doc.setFillColor(45,106,159);
-  doc.rect(0,0,210,32,"F");
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(13);
-  doc.setFont("helvetica","bold");
-  var titulo = String(dia.titulo||"Aula").replace(/[^\u0000-\u00FF]/g,"?");
-  doc.text(titulo, margin, 14);
-  doc.setFontSize(9);
-  doc.setFont("helvetica","normal");
-  doc.text("Semana "+(si+1)+" - "+(semana.titulo||"").replace(/[^\u0000-\u00FF]/g,"?"), margin, 24);
-  y = 42;
-
-  if ((aula.blocos||[]).length > 0) {
-    addLine("CONTEUDO DA AULA", 9, true, 45,106,159);
-    y += 2;
-    for (var i=0; i<aula.blocos.length; i++) {
-      var b = aula.blocos[i];
-      if (b.titulo) addLine(b.titulo, 10, true, 30,30,100);
-      if (b.texto) addLine(b.texto, 9, false, 30,30,30);
-      if (b.expressao) addLine("Formula: "+b.expressao, 9, true, 30,80,140);
-      if (Array.isArray(b.legenda)) {
-        for (var j=0; j<b.legenda.length; j++) addLine("- "+b.legenda[j], 8, false, 80,80,80);
-      }
-      y += 1;
-    }
+  if((aula.simulado||[]).length){
+    h+='<h2>Mini-Simulado</h2>';
+    aula.simulado.forEach((q,qi)=>{
+      h+='<div class="q"><strong>Questao '+(qi+1)+':</strong> '+q.enunciado;
+      (q.alternativas||[]).forEach((alt,ai)=>h+='<div class="a '+(ai===q.correta?'ok':'')+'">'+ alt+'</div>');
+      h+='<div class="exp">'+q.explicacao+'</div></div>';
+    });
   }
-
-  if ((aula.exercicios||[]).length > 0) {
-    sep();
-    addLine("EXERCICIOS RESOLVIDOS", 9, true, 200,100,0);
-    for (var i=0; i<aula.exercicios.length; i++) {
-      var ex = aula.exercicios[i];
-      addLine("Exercicio "+(i+1)+": "+ex.enunciado, 10, true, 30,30,30);
-      for (var j=0; j<(ex.passos||[]).length; j++) addLine((j+1)+". "+ex.passos[j], 9, false, 50,50,50);
-      addLine(ex.resposta||"", 9, true, 0,120,60);
-      y += 3;
-    }
-  }
-
-  if ((aula.simulado||[]).length > 0) {
-    sep();
-    addLine("MINI-SIMULADO", 9, true, 80,30,150);
-    for (var i=0; i<aula.simulado.length; i++) {
-      var q = aula.simulado[i];
-      addLine("Questao "+(i+1)+": "+q.enunciado, 10, true, 30,30,30);
-      for (var j=0; j<(q.alternativas||[]).length; j++) {
-        var marca = j===q.correta ? "> " : "  ";
-        addLine(marca+q.alternativas[j], 9, j===q.correta, j===q.correta?0:60, j===q.correta?120:60, j===q.correta?60:60);
-      }
-      addLine("Resp: "+q.explicacao, 8, false, 100,100,100);
-      y += 3;
-    }
-  }
-
-  doc.save(String(dia.titulo||"aula").replace(/[^a-zA-Z0-9]/g,"_")+".pdf");
-}
-// Rastreia respostas do simulado por aula
-const respostasSim={};
-function responderSim(si,di,qi,ai,correta){
-  const k=`${si}_${di}_${qi}`;
-  if(respostasSim[k]!==undefined)return;
-  respostasSim[k]=ai;
-  const letras=['A','B','C','D','E'];
-  document.querySelectorAll(`#alts-sim-${si}-${di}-${qi} .alt-sim`).forEach((el,j)=>{
-    el.style.pointerEvents='none';
-    if(j===correta)el.classList.add('correta');
-    if(j===ai&&ai!==correta)el.classList.add('errada');
-  });
-  const fb=document.getElementById(`fb-${si}-${di}-${qi}`);
-  fb.classList.add('show');
-  fb.classList.add(ai===correta?'acerto':'erro');
-
-  // Busca explicação da questão
-  const aula=aulaCache[chave(si,di)];
-  const expl=aula?.simulado?.[qi]?.explicacao||'';
-  fb.innerHTML=(ai===correta?`✅ Correto! ${expl}`:`❌ Incorreto. Resposta: ${letras[correta]}. ${expl}`);
-
-  // Verifica se respondeu todas — libera botão concluir
-  const totalQ=aula?.simulado?.length||0;
-  const respondidas=Object.keys(respostasSim).filter(k2=>k2.startsWith(`${si}_${di}_`)).length;
-  if(respondidas>=totalQ){
-    const btn=document.getElementById(`btn-concluir-${si}-${di}`);
-    if(btn){btn.disabled=false;btn.textContent='✅ Marcar aula como concluída';}
-  }
-}
-
-function concluirAula(si,di){
-  marcarConcluida(si,di);
-  const btn=document.getElementById(`btn-concluir-${si}-${di}`);
-  if(btn){btn.textContent='✅ Aula concluída!';btn.style.background='#1a7a42';}
-  const card=document.getElementById(`dia-${si}-${di}`);
-  if(card){card.className='dia-card concluido';}
-}
-
-function irInicio(){
-  document.getElementById('header-titulo').textContent='📅 Plano de Estudos';
-  document.getElementById('link-voltar').href='index.html';
-  document.getElementById('link-voltar').onclick=null;
-  renderInicio();
-  irTela('tela-inicio');
-}
-function irTela(id){
-  document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
-  document.getElementById(id).classList.add('ativa');
-  window.scrollTo({top:0,behavior:'smooth'});
+  h+='</body></html>';
+  w.document.write(h);
+  w.document.close();
 }
 
 // Init
@@ -635,6 +526,7 @@ renderInicio();
 </script>
 </body>
 </html>
+
 
 
 
