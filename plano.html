@@ -482,7 +482,7 @@ function baixarPDFAula(si, di) {
   if (!aula) { alert("Gere a aula primeiro!"); return; }
   const semana = semanas[si];
   const dia = semana.dias[di];
-  const corpo = document.querySelector('[id^="corpo-"]');
+  const corpo = document.querySelector('.dia-corpo.aberto');
   if (!corpo) { alert("Erro ao capturar conteudo."); return; }
   const w = window.open('','_blank');
   const html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
