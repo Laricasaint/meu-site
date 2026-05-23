@@ -128,7 +128,12 @@
 
     @media(max-width:500px){.semanas-grid{grid-template-columns:1fr 1fr;}}
   </style>
-</head>
+  <style media="print">
+    header, .btn-voltar, .btn-pdf-aula, .btn-concluir, .progresso-semana, #tela-inicio, #tela-semana { display: none !important; }
+    #tela-aula { display: block !important; }
+    body { background: white !important; }
+    .aula-corpo { box-shadow: none !important; }
+  </style></head>
 <body>
 
 <header>
@@ -629,6 +634,7 @@ renderInicio();
 </script>
 </body>
 </html>
+
 
 
 
