@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -8,6 +8,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
     onload="katexPronto=true"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;}
@@ -116,6 +117,8 @@
     .feedback-sim.acerto{background:#eef8f2;color:#1a6b3a;}
     .feedback-sim.erro{background:#fdf0f0;color:#8b2020;}
 
+    .btn-pdf-aula{background:#e07b2a;color:white;border:none;padding:10px 20px;border-radius:10px;font-size:0.88rem;cursor:pointer;font-weight:bold;margin-bottom:12px;width:100%;}
+    .btn-pdf-aula:hover{background:#c4621a;}
     .btn-concluir{width:100%;padding:13px;background:#2e9e5b;color:white;border:none;border-radius:10px;font-size:0.95rem;cursor:pointer;margin-top:8px;font-weight:bold;}
     .btn-concluir:hover{background:#1a7a42;}
     .btn-concluir:disabled{background:#90c4a8;cursor:not-allowed;}
@@ -433,6 +436,9 @@ function renderAula(si,di,aula){
     html+='</div>';
   }
 
+  // Botao PDF
+  html+=`<div style="padding:0 20px 8px"><button class="btn-pdf-aula" onclick="baixarPDFAula(${si},${di})">⬇️ Baixar esta aula em PDF</button></div>`;
+
   // Simulado
   if((aula.simulado||[]).length>0){
     html+=`<div class="sim-bloco"><h3>🎯 Mini-simulado desta aula</h3>`;
@@ -473,6 +479,93 @@ function renderAula(si,di,aula){
   },150);
 }
 
+
+function baixarPDFAula(si, di) {
+  const aula = aulaCache[chave(si,di)];
+  if (!aula) { alert("Gere a aula primeiro!"); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const margin = 15;
+  const pageW = 210;
+  const maxW = pageW - margin * 2;
+  let y = 20;
+  const semana = plano[si];
+  const dia = semana.dias[di];
+
+  function addText(text, size, bold, color) {
+    doc.setFontSize(size);
+    doc.setFont("helvetica", bold ? "bold" : "normal");
+    if (color) doc.setTextColor(color[0], color[1], color[2]);
+    else doc.setTextColor(30, 30, 30);
+    const clean = (text||"").replace(/<[^>]+>/g, "").replace(/\$\$?[^$]+\$\$?/g, "");
+    if (!clean.trim()) return;
+    const lines = doc.splitTextToSize(clean, maxW);
+    lines.forEach(line => {
+      if (y > 275) { doc.addPage(); y = 20; }
+      doc.text(line, margin, y);
+      y += size * 0.5;
+    });
+    y += 3;
+  }
+
+  function linha() {
+    y += 2;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(margin, y, pageW - margin, y);
+    y += 5;
+  }
+
+  // Cabeçalho
+  doc.setFillColor(45, 106, 159);
+  doc.rect(0, 0, 210, 32, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.text(dia.titulo || "Aula", margin, 14);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.text("Semana " + (si+1) + " — " + (semana.titulo||""), margin, 24);
+  y = 42;
+
+  // Conteúdo
+  addText("CONTEÚDO DA AULA", 9, true, [45, 106, 159]);
+  (aula.conteudo || []).forEach(b => {
+    if (b.titulo) addText(b.titulo, 9, true, [60, 60, 60]);
+    if (b.texto) addText(b.texto, 10, false);
+    y += 2;
+  });
+
+  // Exercícios
+  if ((aula.exercicios||[]).length > 0) {
+    linha();
+    addText("EXERCÍCIOS RESOLVIDOS", 9, true, [200, 100, 0]);
+    aula.exercicios.forEach((ex, i) => {
+      addText("Exercício " + (i+1) + ": " + (ex.enunciado||""), 10, true);
+      (ex.passos||[]).forEach((p,j) => addText((j+1) + ". " + p, 9, false));
+      addText(ex.resposta||"", 9, true, [0, 120, 60]);
+      y += 3;
+    });
+  }
+
+  // Simulado
+  if ((aula.simulado||[]).length > 0) {
+    linha();
+    addText("MINI-SIMULADO", 9, true, [80, 30, 150]);
+    const letras = ["A","B","C","D","E"];
+    aula.simulado.forEach((q, qi) => {
+      addText("Questão " + (qi+1) + ": " + (q.enunciado||""), 10, true);
+      (q.alternativas||[]).forEach((alt, ai) => {
+        const marcador = ai === q.correta ? "✓ " : "  ";
+        addText(marcador + alt, 9, ai === q.correta);
+      });
+      addText("Explicação: " + (q.explicacao||""), 9, false, [80, 80, 80]);
+      y += 3;
+    });
+  }
+
+  const nomeArq = (dia.titulo||"aula").replace(/[^a-zA-Z0-9]/g,"_") + ".pdf";
+  doc.save(nomeArq);
+}
 // Rastreia respostas do simulado por aula
 const respostasSim={};
 function responderSim(si,di,qi,ai,correta){
@@ -529,3 +622,4 @@ renderInicio();
 </script>
 </body>
 </html>
+
