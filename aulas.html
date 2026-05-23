@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;transition:background 0.3s,color 0.3s;}
@@ -108,7 +109,9 @@
     .link-externo:hover{background:#e8f2fb;}
     body.dark .link-externo{background:#1e2e4a;color:#ccc;border-color:#3a4a6a;}
 
-    @media(max-width:500px){.aulas-grid{grid-template-columns:1fr;}.btns-player{gap:8px;}.btn-player{padding:8px 14px;font-size:0.82rem;}}
+    @media(max-width:500px){.aulas-grid{grid-template-columns:1fr;}
+    .btn-pdf{background:#e07b2a;color:white;border:none;padding:10px 20px;border-radius:10px;font-size:0.88rem;cursor:pointer;font-weight:bold;}
+    .btn-pdf:hover{background:#c4621a;}.btns-player{gap:8px;}.btn-player{padding:8px 14px;font-size:0.82rem;}}
   </style>
 </head>
 <body>
@@ -340,13 +343,15 @@ function renderPlayer() {
       <div class="btns-player">
         <button class="btn-player btn-nav" onclick="navSlide(-1)" ${slideAtual===0?'disabled':''}>‹ Anterior</button>
         <button class="btn-player btn-play-p" id="btn-narrar" onclick="toggleNarracao()">🔊 Ouvir</button>
-        <button class="btn-player btn-nav" onclick="navSlide(1)" ${slideAtual===slides.length-1?'disabled':''}>Próximo ›</button>
+        <button class="btn-player btn-nav" onclick="navSlide(1)" <button class="btn-player btn-pdf" onclick="baixarPDF()">⬇️ Baixar PDF</button>
+      ${slideAtual===slides.length-1?'disabled':''}>Próximo ›</button>
         <select class="vel-select" id="vel-select" title="Velocidade">
           <option value="0.8">🐢 Lento</option>
           <option value="1" selected>Normal</option>
           <option value="1.3">🐇 Rápido</option>
         </select>
       </div>
+      <button class="btn-player btn-pdf" onclick="baixarPDF()">⬇️ Baixar PDF</button>
       ${slideAtual===slides.length-1 ? `<div style="margin-top:14px"><button class="btn-player btn-play-p" style="width:100%;background:#2e9e5b" onclick="voltarLista()">✅ Aula concluída — Voltar</button></div>` : ''}
     </div>
     ${aulaAtual?.pdfs?.length ? renderLinks() : ''}
@@ -446,8 +451,57 @@ function toggleDark() {
   btn.textContent = document.body.classList.contains('dark') ? '☀️ Modo claro' : '🌙 Modo escuro';
 }
 
+
+function baixarPDF() {
+  if (!aulaAtual || !slides.length) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const margin = 15;
+  const pageW = 210;
+  const maxW = pageW - margin * 2;
+  let y = 20;
+
+  function addText(text, size, bold, color) {
+    doc.setFontSize(size);
+    doc.setFont("helvetica", bold ? "bold" : "normal");
+    if (color) doc.setTextColor(color[0], color[1], color[2]);
+    else doc.setTextColor(30, 30, 30);
+    const clean = text.replace(/<[^>]+>/g, "").replace(/\$[^$]+\$/g, "");
+    const lines = doc.splitTextToSize(clean, maxW);
+    lines.forEach(line => {
+      if (y > 275) { doc.addPage(); y = 20; }
+      doc.text(line, margin, y);
+      y += size * 0.5;
+    });
+    y += 4;
+  }
+
+  doc.setFillColor(45, 106, 159);
+  doc.rect(0, 0, 210, 30, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.text(aulaAtual.titulo, margin, 18);
+  y = 40;
+
+  slides.forEach((slide, i) => {
+    if (slide.secao) addText(slide.secao, 9, true, [45, 106, 159]);
+    if (slide.texto) addText(slide.texto, 10, false);
+    if (slide.formula) addText("Formula: " + slide.formula.replace(/\$/g, ""), 10, true, [30, 80, 140]);
+    if (slide.legenda) addText(slide.legenda, 9, false, [100, 80, 0]);
+    if (i < slides.length - 1) {
+      y += 4;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, y, pageW - margin, y);
+      y += 6;
+    }
+  });
+
+  doc.save(aulaAtual.titulo.replace(/[^a-zA-Z0-9]/g, "_") + ".pdf");
+}
 // Init
 renderLista();
 </script>
 </body>
 </html>
+
